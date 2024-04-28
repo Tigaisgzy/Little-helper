@@ -9,6 +9,12 @@ import requests
 import smtplib
 from email.mime.text import MIMEText
 import os
+import sys
+from datetime import *
+
+global email_address
+global username
+global password
 
 with open('g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
@@ -20,9 +26,10 @@ def send_QQ_email_plain(receiver, content):
     passwd = 'tffenmnkqsveccdj'  # 授权码
 
     # receiver 接收方的邮箱账号，不一定是QQ邮箱
-
+    # 获取当前时间并格式化为 "年-月-日 时:分:秒" 格式
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # 纯文本内容
-    msg = MIMEText(f'{content}', 'plain', 'utf-8')
+    msg = MIMEText(f'{current_time}\n结果：{content}', 'plain', 'utf-8')
 
     # 正确设置 From 字段为发送方的邮箱
     msg['From'] = f'{sender}'
@@ -87,7 +94,20 @@ def login(session, username, password):
         'code': str(yzm),
     }
     response = session.post('https://ids.gzist.edu.cn/lyuapServer/v1/tickets', data=data)
-    return response.json()['ticket']
+    if response.json()['data']['code'] == 'NOUSER':
+        result = '账号不存在'
+        send_QQ_email_plain(email_address, result)
+        sys.exit(1)
+    elif response.json()['data']['code'] == 'PASSERROR':
+        result = '密码错误'
+        send_QQ_email_plain(email_address, result)
+        sys.exit(1)
+    elif response.json()['data']['code'] == 'CODEFALSE':
+        result = '验证码错误'
+        send_QQ_email_plain(email_address, result)
+        sys.exit(1)
+    else:
+        return response.json()['ticket']
 
 
 def UpdateCookie(session, ticket):
