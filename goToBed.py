@@ -155,6 +155,7 @@ def doWork(session):
         cookies=cookies,
         data=data,
     )
+    print(response.text)
     global result
     try:
         result = response.json()['msg']
