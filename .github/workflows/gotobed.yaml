@@ -34,5 +34,5 @@ jobs:
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}  # 新增邮箱地址环境变量
           TOKEN: ${{ secrets.TOKEN }}
         run: |
-          python dowork.py || echo "Script failed with exit code $?"
+          python goToBed.py || echo "Script failed with exit code $?"
         
