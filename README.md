@@ -1,5 +1,5 @@
-# doSignIn
-    定时任务时间要修改在 .github/workflows/doSignIn.yml中修改
+# doSignIn AND goToBed
+    定时任务时间要修改在 .github/workflows/doSignIn.yaml 或 gotobed.yaml中修改
     如若使用的是QQ邮箱，第一次请检查是否被当做垃圾邮件，是的话，请将邮件标记为非垃圾邮件
 
 # 变量在仓库的Settings --> Secrets中配置
@@ -11,6 +11,14 @@
 
 # 自动打码 注册地址 免费300积分
     https://console.jfbym.com/register/TG66434
+
+# 具体教程
+1. 先fork仓库
+2. 在仓库的Settings --> Secrets中配置变量
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+3. 配置定时任务
+4. 配置成功后，在仓库的Actions中查看运行情况
 
 
 
