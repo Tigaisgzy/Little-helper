@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install execjs requests
+          pip install Pyexecjs requests
 
       - name: Run python script
         run: python dowork.py
