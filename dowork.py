@@ -36,8 +36,8 @@ def send_QQ_email_plain(receiver, content):
     # 将UTC时间转换为北京时间
     beijing_time = utc_time.astimezone(beijing_zone)
 
-    # 格式化北京时间为 "年-月-日 星期几" 格式
-    formatted_date = beijing_time.strftime('%Y-%m-%d %A')
+    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
+    formatted_date = beijing_time.strftime('%Y-%m-%d %A %H:%M')
 
     # 纯文本内容
     msg = MIMEText(f'结果：{content}', 'plain', 'utf-8')
