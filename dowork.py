@@ -94,15 +94,15 @@ def login(session, username, password):
         'code': str(yzm),
     }
     response = session.post('https://ids.gzist.edu.cn/lyuapServer/v1/tickets', data=data)
-    if response.json()['data']['code'] == 'NOUSER':
+    if 'NOUSER' in response.json():
         result = '账号不存在'
         send_QQ_email_plain(email_address, result)
         sys.exit(1)
-    elif response.json()['data']['code'] == 'PASSERROR':
+    elif 'PASSERROR' in response.json():
         result = '密码错误'
         send_QQ_email_plain(email_address, result)
         sys.exit(1)
-    elif response.json()['data']['code'] == 'CODEFALSE':
+    elif 'CODEFALSE' in response.json():
         result = '验证码错误'
         send_QQ_email_plain(email_address, result)
         sys.exit(1)
