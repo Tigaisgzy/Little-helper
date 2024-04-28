@@ -6,10 +6,44 @@ import re
 import execjs
 import json
 import requests
+import smtplib
+from email.mime.text import MIMEText
 
 with open('g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
+
+
+def send_QQ_email_plain(receiver, content):
+    sender = user = '1781259604@qq.com'  # 发送方的邮箱账号
+    passwd = 'tffenmnkqsveccdj'  # 授权码
+
+    # receiver 接收方的邮箱账号，不一定是QQ邮箱
+
+    # 纯文本内容
+    msg = MIMEText(f'{content}', 'plain', 'utf-8')
+
+    # 正确设置 From 字段为发送方的邮箱
+    msg['From'] = f'{sender}'
+    msg['To'] = receiver
+    msg['Subject'] = '自动结果'  # 点开详情后的标题
+
+    try:
+        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
+        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
+
+        # 登录发送方的邮箱账号
+        smtp.login(user, passwd)
+
+        # 发送邮件：发送方，接收方，发送的内容
+        smtp.sendmail(sender, receiver, msg.as_string())
+
+        print('邮件发送成功')
+
+        smtp.quit()
+    except Exception as e:
+        print(e)
+        print('发送邮件失败')
 
 
 def init():
@@ -85,12 +119,20 @@ def doWork(session):
         cookies=cookies,
         data=data,
     )
-    if response.json()['msg'] == '成功':
-        print('签到成功')
+    global result
+    try:
+        if response.json()['msg'] == '成功':
+            result = response.json()['data']['prompt']
+            print(result)
+            return result
+    except:
+        result = '签到失败'
+        return result
 
 
 if __name__ == '__main__':
     session = init()
-    ticket = login(session, '20220407430746', '511677gzy')
+    ticket = login(session, '', '')
     UpdateCookie(session, ticket)
-    doWork(session)
+    res = doWork(session)
+    send_QQ_email_plain('', res)
