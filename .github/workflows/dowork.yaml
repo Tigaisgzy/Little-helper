@@ -24,4 +24,5 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}  # 新增邮箱地址环境变量
+          TOKEN: ${{ secrets.TOKEN }}
         run: python dowork.py
