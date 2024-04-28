@@ -151,11 +151,10 @@ def doWork(session):
         'data': '{}',
     }
     response = session.post(
-        'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
+        'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
         cookies=cookies,
         data=data,
     )
-    print(response.text)
     global result
     try:
         result = response.json()['msg']
