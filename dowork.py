@@ -82,6 +82,7 @@ def getCode(image):
         "type": "10110"
     }
     resp = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
+    print("DEBUG: JSON响应:", resp.json())  # 调试打印
     result = resp.json()["data"]["data"]
     result = result.replace('o', '0').replace('l', '1').replace('O', '0')
     return eval(result[:-1])
