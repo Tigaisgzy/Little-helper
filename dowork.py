@@ -12,6 +12,7 @@ import os
 import sys
 from datetime import *
 import pytz
+
 email_address = os.getenv('EMAIL_ADDRESS')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
@@ -25,7 +26,6 @@ def send_QQ_email_plain(receiver, content):
     sender = user = '1781259604@qq.com'  # 发送方的邮箱账号
     passwd = 'tffenmnkqsveccdj'  # 授权码
 
-    # receiver 接收方的邮箱账号，不一定是QQ邮箱
     # 设置UTC和北京时间的时区
     utc_zone = pytz.utc
     beijing_zone = pytz.timezone('Asia/Shanghai')
@@ -36,16 +36,16 @@ def send_QQ_email_plain(receiver, content):
     # 将UTC时间转换为北京时间
     beijing_time = utc_time.astimezone(beijing_zone)
 
-    # 格式化北京时间为 "年-月-日 时:分:秒" 格式
-    current_time = beijing_time.strftime('%Y-%m-%d %H:%M:%S')
-    print(current_time)
-    # 纯文本内容
-    msg = MIMEText(f'{current_time}\n结果：{content}', 'plain', 'utf-8')
+    # 格式化北京时间为 "年-月-日 星期几" 格式
+    formatted_date = beijing_time.strftime('%Y-%m-%d %A')
 
-    # 正确设置 From 字段为发送方的邮箱
+    # 纯文本内容
+    msg = MIMEText(f'结果：{content}', 'plain', 'utf-8')
+
+    # 设置邮件主题为今天的日期和星期
     msg['From'] = f'{sender}'
     msg['To'] = receiver
-    msg['Subject'] = '自动结果'  # 点开详情后的标题
+    msg['Subject'] = f'今天是 {formatted_date}'  # 设置邮件主题
 
     try:
         # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
