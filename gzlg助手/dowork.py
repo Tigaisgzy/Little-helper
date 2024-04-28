@@ -17,7 +17,7 @@ email_address = os.getenv('EMAIL_ADDRESS')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
 token = os.getenv('TOKEN')
-with open('g5116.js', 'r', encoding='utf-8') as f:
+with open('./g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
 
