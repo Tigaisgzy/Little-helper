@@ -1,6 +1,6 @@
 # doSignIn
     定时任务时间要修改在 .github/workflows/doSignIn.yml中修改
-
+    如若使用的是QQ邮箱，第一次请检查是否被当做垃圾邮件，是的话，请将邮件标记为非垃圾邮件
 
 # 变量在仓库的Settings --> Secrets中配置
     USERNAME --> 账号
