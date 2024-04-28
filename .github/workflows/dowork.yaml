@@ -2,7 +2,7 @@ name: dosing
 
 on:
   schedule:
-    - cron: '15 10 * * *'
+    - cron: '30 10 * * *'
 
 jobs:
   build:
