@@ -1,8 +1,9 @@
 name: dosing
-
 on:
-  schedule:
-    - cron: '50 10 * * *'
+  push:  # 任何推送到仓库都会触发这个工作流
+#on:
+#  schedule:
+#    - cron: '50 10 * * *'
 
 jobs:
   build:
@@ -25,4 +26,6 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}  # 新增邮箱地址环境变量
           TOKEN: ${{ secrets.TOKEN }}
-        run: python dowork.py
+        run: |
+          python dowork.py || echo "Script failed with exit code $?"
+        
