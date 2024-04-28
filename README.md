@@ -7,7 +7,7 @@
     PASSWORD --> 密码
     EMAIL_ADDRESS --> 结果发送邮箱地址
     TOKEN --> 打码平台密钥
-    ![img.png](img.png)
+![img.png](img.png)
 
 # 自动打码 注册地址 免费300积分
     https://console.jfbym.com/register/TG66434
