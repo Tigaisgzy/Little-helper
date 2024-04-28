@@ -43,7 +43,7 @@ def send_QQ_email_plain(receiver, content):
     formatted_date = get_beijing_time()
 
     # 纯文本内容
-    msg = MIMEText(f'结果：{content}', 'plain', 'utf-8')
+    msg = MIMEText(f'查寝结果：{content}', 'plain', 'utf-8')
 
     # 设置邮件主题为今天的日期和星期
     msg['From'] = f'{sender}'
@@ -161,7 +161,7 @@ def doWork(session):
         print(result)
         return result
     except:
-        result = '签到失败'
+        result = '查寝失败'
         return result
 
 
