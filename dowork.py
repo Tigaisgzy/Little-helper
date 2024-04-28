@@ -15,6 +15,7 @@ from datetime import *
 global email_address
 global username
 global password
+global token
 
 with open('g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
@@ -68,7 +69,7 @@ def getCode(image):
     url = "http://api.jfbym.com/api/YmServer/customApi"
     payload = {
         "image": image,
-        "token": "VglEBCVb7uEmFh5EczocSCaGLCedNwpVlmF2sgmjCQk",
+        "token": str(token),
         "type": "10110"
     }
     resp = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
@@ -155,6 +156,7 @@ def main():
     email_address = os.getenv('EMAIL_ADDRESS')
     username = os.getenv('USERNAME')
     password = os.getenv('PASSWORD')
+    token = os.getenv('TOKEN')
 
     session = init()
     ticket = login(session, username, password)
