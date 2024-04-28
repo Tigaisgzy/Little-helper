@@ -2,7 +2,7 @@ name: dosing
 
 on:
   schedule:
-    - cron: '15 10 * * *'
+    - cron: '50 10 * * *'
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install Pyexecjs requests
+          pip install Pyexecjs requests pytz
 
       - name: Run python script
         env:

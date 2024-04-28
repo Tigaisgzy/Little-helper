@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 import os
 import sys
 from datetime import *
-
+import pytz
 email_address = os.getenv('EMAIL_ADDRESS')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
@@ -26,8 +26,19 @@ def send_QQ_email_plain(receiver, content):
     passwd = 'tffenmnkqsveccdj'  # 授权码
 
     # receiver 接收方的邮箱账号，不一定是QQ邮箱
-    # 获取当前时间并格式化为 "年-月-日 时:分:秒" 格式
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # 设置UTC和北京时间的时区
+    utc_zone = pytz.utc
+    beijing_zone = pytz.timezone('Asia/Shanghai')
+
+    # 获取当前的UTC时间，并添加UTC时区信息
+    utc_time = datetime.now(utc_zone)
+
+    # 将UTC时间转换为北京时间
+    beijing_time = utc_time.astimezone(beijing_zone)
+
+    # 格式化北京时间为 "年-月-日 时:分:秒" 格式
+    current_time = beijing_time.strftime('%Y-%m-%d %H:%M:%S')
+    print(current_time)
     # 纯文本内容
     msg = MIMEText(f'{current_time}\n结果：{content}', 'plain', 'utf-8')
 
