@@ -1,6 +1,10 @@
 # doSignIn
 
-# 账号、密码、邮箱及打码平台的token在仓库的Settings --> Secrets中配置
+# 变量在仓库的Settings --> Secrets中配置
+# USERNAME --> 账号
+# PASSWORD --> 密码
+# EMAIL_ADDRESS --> 结果发送邮箱地址
+# TOKEN --> 打码平台密钥
 
 # 自动打码 注册地址 免费300积分
 
