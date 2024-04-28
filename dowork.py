@@ -12,11 +12,10 @@ import os
 import sys
 from datetime import *
 
-global email_address
-global username
-global password
-global token
-
+email_address = os.getenv('EMAIL_ADDRESS')
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+token = os.getenv('TOKEN')
 with open('g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
@@ -63,7 +62,7 @@ def init():
     return requests.Session()
 
 
-def getCode(image):
+def getCode(image, token):
     # 自动打码 注册地址 免费300积分
     # https://console.jfbym.com/register/TG66434
     url = "http://api.jfbym.com/api/YmServer/customApi"
@@ -84,7 +83,7 @@ def login(session, username, password):
     response = session.get(yzm_url, params=params)
     uid = response.json()['uid']
     yzm_base64 = re.search('base64,(.*)', response.json()['content']).group(1)
-    yzm = getCode(yzm_base64)
+    yzm = getCode(yzm_base64, token)
     psw = ctx.call('G5116', username, password, '')
     data = {
         'username': username,
@@ -153,11 +152,6 @@ def doWork(session):
 
 
 def main():
-    email_address = os.getenv('EMAIL_ADDRESS')
-    username = os.getenv('USERNAME')
-    password = os.getenv('PASSWORD')
-    token = os.getenv('TOKEN')
-
     session = init()
     ticket = login(session, username, password)
     UpdateCookie(session, ticket)
