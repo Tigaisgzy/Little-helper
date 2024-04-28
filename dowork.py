@@ -21,7 +21,6 @@ with open('g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
 
-
 def get_beijing_time():
     # 设置UTC和北京时间的时区
     utc_zone = pytz.utc
