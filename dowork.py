@@ -62,7 +62,7 @@ def init():
     return requests.Session()
 
 
-def getCode(image, token):
+def getCode(image):
     # 自动打码 注册地址 免费300积分
     # https://console.jfbym.com/register/TG66434
     url = "http://api.jfbym.com/api/YmServer/customApi"
@@ -83,7 +83,7 @@ def login(session, username, password):
     response = session.get(yzm_url, params=params)
     uid = response.json()['uid']
     yzm_base64 = re.search('base64,(.*)', response.json()['content']).group(1)
-    yzm = getCode(yzm_base64, token)
+    yzm = getCode(yzm_base64)
     psw = ctx.call('G5116', username, password, '')
     data = {
         'username': username,
