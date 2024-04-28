@@ -21,6 +21,7 @@
 # 具体教程
 
 1. 先fork仓库
+   ![img.png](img.png)
 2. 在仓库的Settings --> Secrets中配置变量
    ![img_1.png](gzlg助手/img_1.png)
    ![img_2.png](gzlg助手/img_2.png)
