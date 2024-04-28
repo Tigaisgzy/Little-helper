@@ -1,5 +1,11 @@
 # doSignIn
 
+# 账号、密码、邮箱及打码平台的token在仓库的Settings --> Secrets中配置
+
+# 自动打码 注册地址 免费300积分
+
+# https://console.jfbym.com/register/TG66434
+
 
 
 
