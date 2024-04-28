@@ -45,7 +45,7 @@ def send_QQ_email_plain(receiver, content):
     # 设置邮件主题为今天的日期和星期
     msg['From'] = f'{sender}'
     msg['To'] = receiver
-    msg['Subject'] = f'今天是 {formatted_date}'  # 设置邮件主题
+    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
 
     try:
         # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
