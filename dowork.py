@@ -22,22 +22,23 @@ with open('g5116.js', 'r', encoding='utf-8') as f:
 ctx = execjs.compile(js)
 
 
+def get_beijing_time():
+    # 设置UTC和北京时间的时区
+    utc_zone = pytz.utc
+    beijing_zone = pytz.timezone('Asia/Shanghai')
+    # 获取当前的UTC时间，并添加UTC时区信息
+    utc_time = datetime.now(utc_zone)
+    # 将UTC时间转换为北京时间
+    beijing_time = utc_time.astimezone(beijing_zone)
+    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
+    return beijing_time.strftime('%Y-%m-%d %A %H:%M')
+
 def send_QQ_email_plain(receiver, content):
     sender = user = '1781259604@qq.com'  # 发送方的邮箱账号
     passwd = 'tffenmnkqsveccdj'  # 授权码
 
-    # 设置UTC和北京时间的时区
-    utc_zone = pytz.utc
-    beijing_zone = pytz.timezone('Asia/Shanghai')
-
-    # 获取当前的UTC时间，并添加UTC时区信息
-    utc_time = datetime.now(utc_zone)
-
-    # 将UTC时间转换为北京时间
-    beijing_time = utc_time.astimezone(beijing_zone)
-
     # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    formatted_date = beijing_time.strftime('%Y-%m-%d %A %H:%M')
+    formatted_date = get_beijing_time()
 
     # 纯文本内容
     msg = MIMEText(f'结果：{content}', 'plain', 'utf-8')
@@ -64,14 +65,12 @@ def send_QQ_email_plain(receiver, content):
         print(e)
         print('发送邮件失败')
 
-
 def init():
     session = requests.Session()
     session.headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     return session
-
 
 def getCode(image):
     # 自动打码 注册地址 免费300积分
@@ -86,7 +85,6 @@ def getCode(image):
     result = resp.json()["data"]["data"]
     result = result.replace('o', '0').replace('l', '1').replace('O', '0')
     return eval(result[:-1])
-
 
 def login(session, username, password):
     params = {'uid': ''}
@@ -120,14 +118,12 @@ def login(session, username, password):
     else:
         return response.json()['ticket']
 
-
 def UpdateCookie(session, ticket):
     params = {'ticket': ticket}
     response = session.get(
         'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/*default/index.do',
         params=params)
     session.cookies = response.cookies
-
 
 def doWork(session):
     data = {
@@ -161,14 +157,12 @@ def doWork(session):
         result = '签到失败'
         return result
 
-
 def main():
     session = init()
     ticket = login(session, username, password)
     UpdateCookie(session, ticket)
     res = doWork(session)
     send_QQ_email_plain(email_address, res)
-
 
 if __name__ == '__main__':
     main()
