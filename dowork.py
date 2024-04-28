@@ -8,6 +8,7 @@ import json
 import requests
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 with open('g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
@@ -130,9 +131,17 @@ def doWork(session):
         return result
 
 
-if __name__ == '__main__':
+def main():
+    email_address = os.getenv('EMAIL_ADDRESS')
+    username = os.getenv('USERNAME')
+    password = os.getenv('PASSWORD')
+
     session = init()
-    ticket = login(session, '', '')
+    ticket = login(session, username, password)
     UpdateCookie(session, ticket)
     res = doWork(session)
-    send_QQ_email_plain('', res)
+    send_QQ_email_plain(email_address, res)
+
+
+if __name__ == '__main__':
+    main()

@@ -20,4 +20,8 @@ jobs:
           pip install Pyexecjs requests
 
       - name: Run python script
+        env:
+          USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          PASSWORD: ${{ secrets.GITHUB_PASSWORD }}
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}  # 新增邮箱地址环境变量
         run: python dowork.py
