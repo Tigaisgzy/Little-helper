@@ -12,7 +12,7 @@
     EMAIL_ADDRESS --> 结果发送邮箱地址
     TOKEN --> 打码平台密钥
 
-![img.png](gzlg助手/img.png)
+![img.png](gzlg助手/img/img.png)
 
 # 自动打码 注册地址 免费300积分
 
@@ -21,10 +21,10 @@
 # 具体教程
 
 1. 先fork仓库
-   ![img.png](img.png)
+   ![img.png](gzlg助手/img/img4.png)
 2. 在仓库的Settings --> Secrets中配置变量
-   ![img_1.png](gzlg助手/img_1.png)
-   ![img_2.png](gzlg助手/img_2.png)
+   ![img_1.png](gzlg助手/img/img_1.png)
+   ![img_2.png](gzlg助手/img/img_2.png)
 3. 配置定时任务
 4. 配置成功后，在仓库的Actions中查看运行情况
 
