@@ -30,6 +30,7 @@
    ![img_1.png](gzlg助手/img/img_1.png)
    ![img_2.png](gzlg助手/img/img_2.png)
 3. 配置定时任务
+
 4. 配置成功后，在仓库的Actions中查看运行情况
 
 
@@ -44,7 +45,9 @@
 
 ![img_1.png](gzlg助手/img/img_1.png)
 ![img_2.png](gzlg助手/img/img_2.png)
+
 3. 配置定时任务
+
 4. 配置成功后，在仓库的Actions中查看运行情况
 
 
