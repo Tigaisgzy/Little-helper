@@ -7,10 +7,10 @@
 
 # 变量在仓库的Settings --> Secrets中配置
 '''python
-    USERNAME # 账号
-    PASSWORD # 密码
-    EMAIL_ADDRESS # 结果发送邮箱地址
-    TOKEN # 打码平台密钥
+USERNAME # 账号
+PASSWORD # 密码
+EMAIL_ADDRESS # 结果发送邮箱地址
+TOKEN # 打码平台密钥
 
 ![img.png](gzlg助手/img/img.png)
 
