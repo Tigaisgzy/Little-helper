@@ -1,3 +1,5 @@
+-[doSignIn AND goToBed](#dosignin-and-gotobed)
+
 # doSignIn AND goToBed
 
     doSignIn是签到
