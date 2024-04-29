@@ -15,8 +15,7 @@
 ![img.png](gzlg助手/img/img.png)
 
 ## 自动打码 注册地址 免费300积分
-
-    https://console.jfbym.com/register/TG66434
+[云码](https://console.jfbym.com/register/TG66434)
 
 ## 具体教程:
 
