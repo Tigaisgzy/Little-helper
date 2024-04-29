@@ -1,16 +1,16 @@
 # doSignIn AND goToBed
 
-    doSignIn是签到
-    gotobed是查寝
-    定时任务时间要修改在 .github/workflows/doSignIn.yaml 或 gotobed.yaml中修改
-    如若使用的是QQ邮箱，第一次请检查是否被当做垃圾邮件，是的话，请将邮件标记为非垃圾邮件
+    -doSignIn是签到
+    -gotobed是查寝
+    -定时任务时间要修改在 .github/workflows/doSignIn.yaml 或 gotobed.yaml中修改
+    -如若使用的是QQ邮箱，第一次请检查是否被当做垃圾邮件，是的话，请将邮件标记为非垃圾邮件
 
 # 变量在仓库的Settings --> Secrets中配置
-'''python
-USERNAME # 账号
-PASSWORD # 密码
-EMAIL_ADDRESS # 结果发送邮箱地址
-TOKEN # 打码平台密钥
+
+    USERNAME # 账号
+    PASSWORD # 密码
+    EMAIL_ADDRESS # 结果发送邮箱地址
+    TOKEN # 打码平台密钥
 
 ![img.png](gzlg助手/img/img.png)
 
