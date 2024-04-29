@@ -6,11 +6,11 @@
     如若使用的是QQ邮箱，第一次请检查是否被当做垃圾邮件，是的话，请将邮件标记为非垃圾邮件
 
 # 变量在仓库的Settings --> Secrets中配置
-
-    USERNAME --> 账号
-    PASSWORD --> 密码
-    EMAIL_ADDRESS --> 结果发送邮箱地址
-    TOKEN --> 打码平台密钥
+'''python
+    USERNAME # 账号
+    PASSWORD # 密码
+    EMAIL_ADDRESS # 结果发送邮箱地址
+    TOKEN # 打码平台密钥
 
 ![img.png](gzlg助手/img/img.png)
 
@@ -18,15 +18,15 @@
 
     https://console.jfbym.com/register/TG66434
 
-# 具体教程
+# 具体教程:
 
-1. 先fork仓库
+   1. 先fork仓库
    ![img.png](gzlg助手/img/img4.png)
-2. 在仓库的Settings --> Secrets中配置变量
-   ![img_1.png](gzlg助手/img/img_1.png)
-   ![img_2.png](gzlg助手/img/img_2.png)
-3. 配置定时任务
-4. 配置成功后，在仓库的Actions中查看运行情况
+   2. 在仓库的Settings --> Secrets中配置变量
+      ![img_1.png](gzlg助手/img/img_1.png)
+      ![img_2.png](gzlg助手/img/img_2.png)
+   3. 配置定时任务
+   4. 配置成功后，在仓库的Actions中查看运行情况
 
 
 
