@@ -41,6 +41,7 @@
 2. 在仓库的Settings --> Secrets中配置变量
 
 > BDUSS_BFESS 这两个去网页版登录后在cookie里找
+> 
 > STOKEN      好像能用挺久的一次
 
 ![img_1.png](gzlg助手/img/img_1.png)
