@@ -106,10 +106,18 @@ def send_QQ_email_plain(receiver, content):
         print('发送邮件失败')
 
 
+BDUSS_BFESS = os.getenv('BDUSS_BFESS')
+STOKEN = os.getenv('STOKEN')
+email_address = os.getenv('EMAIL_ADDRESS')
+if email_address == '':
+    print('请填写邮箱地址')
+    exit()
+if BDUSS_BFESS == '' or STOKEN == '':
+    print('请填写BDUSS_BFESS和STOKEN')
+    exit()
+
+
 if __name__ == '__main__':
-    BDUSS_BFESS = os.getenv('BDUSS_BFESS')
-    STOKEN = os.getenv('STOKEN')
-    email_address = os.getenv('EMAIL_ADDRESS')
     cookies = {
         'BDUSS_BFESS': str(BDUSS_BFESS),
         'STOKEN': str(STOKEN),
