@@ -39,7 +39,7 @@ def do_sign(name_list):
         url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
         response = requests.get(url)
         tree = etree.HTML(response.text)
-        # time.sleep(1)
+        time.sleep(1)
         tbs = tree.xpath('/html/head/script[1]')[0].text
         tbs_data = re.search(r'var PageData = ({.*?});', tbs, re.DOTALL)
         if tbs_data:
