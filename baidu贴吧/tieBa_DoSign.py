@@ -1,3 +1,5 @@
+import sys
+
 import requests
 from datetime import *
 import time
@@ -33,31 +35,36 @@ def get_count():
 
 def do_sign(name_list):
     result = ''
-    for name in name_list:
-        # print(f'正在签到{name}吧')
-        url_name = urllib.parse.quote(name)
-        url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
-        response = requests.get(url)
-        tree = etree.HTML(response.text)
-        time.sleep(1)
-        tbs = tree.xpath('/html/head/script[1]')[0].text
-        tbs_data = re.search(r'var PageData = ({.*?});', tbs, re.DOTALL)
-        if tbs_data:
-            cleaned_json = tbs_data.group(1).replace("'", '"')  # 将单引号替换为双引号以符合JSON格式
-            page_data_dict = json.loads(cleaned_json)
-            # 获取tbs的值
-            tbs_value = page_data_dict['tbs']
-        data = {
-            'ie': 'utf-8',
-            'kw': name,
-            'tbs': tbs_value,
-        }
-        response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
-        json_data = json.loads(response.text)
-        if json_data["no"] == 0:
-            result += f'{name}吧签到成功\n'
-        elif json_data["no"] == 1101:
-            result += f'{name}吧今天已经签到过了\n'
+    try:
+        for name in name_list:
+            # print(f'正在签到{name}吧')
+            url_name = urllib.parse.quote(name)
+            url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
+            response = requests.get(url)
+            tree = etree.HTML(response.text)
+            time.sleep(1)
+            tbs = tree.xpath('/html/head/script[1]')[0].text
+            tbs_data = re.search(r'var PageData = ({.*?});', tbs, re.DOTALL)
+            if tbs_data:
+                cleaned_json = tbs_data.group(1).replace("'", '"')  # 将单引号替换为双引号以符合JSON格式
+                page_data_dict = json.loads(cleaned_json)
+                # 获取tbs的值
+                tbs_value = page_data_dict['tbs']
+            data = {
+                'ie': 'utf-8',
+                'kw': name,
+                'tbs': tbs_value,
+            }
+            response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
+            json_data = json.loads(response.text)
+            if json_data["no"] == 0:
+                result += f'{name}吧签到成功\n'
+            elif json_data["no"] == 1101:
+                result += f'{name}吧今天已经签到过了\n'
+    except Exception as e:
+        result += f'{name}吧签到失败\n'
+        send_QQ_email_plain(email_address,result)
+        sys.exit()
     return result
 
 
