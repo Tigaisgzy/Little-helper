@@ -33,8 +33,8 @@ def get_beijing_time():
     return beijing_time.strftime('%Y-%m-%d %A %H:%M')
 
 def send_QQ_email_plain(receiver, content):
-    sender = user = '1781259604@qq.com'  # 发送方的邮箱账号
-    passwd = 'tffenmnkqsveccdj'  # 授权码
+    sender = user = '1781259604@qq.com' 
+    passwd = 'tffenmnkqsveccdj'  
 
     # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
     formatted_date = get_beijing_time()
