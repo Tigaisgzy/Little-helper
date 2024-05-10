@@ -66,15 +66,15 @@ def login(session):
     response = session.post('https://ids.gzist.edu.cn/lyuapServer/v1/tickets', data=data)
     if 'NOUSER' in response.json():
         result = '账号不存在'
-        send_QQ_email_plain(email_address, result)
+        send_QQ_email_plain(result)
         sys.exit(1)
     elif 'PASSERROR' in response.json():
         result = '密码错误'
-        send_QQ_email_plain(email_address, result)
+        send_QQ_email_plain(result)
         sys.exit(1)
     elif 'CODEFALSE' in response.json():
         result = '验证码错误'
-        send_QQ_email_plain(email_address, result)
+        send_QQ_email_plain(result)
         sys.exit(1)
     else:
         return response.json()['ticket']
