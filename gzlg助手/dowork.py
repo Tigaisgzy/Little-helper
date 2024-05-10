@@ -102,14 +102,24 @@ def doWork(session):
     cookies = {
         '_WEU': _WEU
     }
-    data = {
+    data_by = {
         'data': '{"SFFWN":"1","DDDM":"134D3343A40D51AFE0630717000A7549","DDMC":"广州理工学院白云区","QDJD":113.46617498988796,"QDWD":23.263957044502487,"RWBH":"16FC8C91BCDDEC67E0630717000A97E1","QDPL":"2"}',
     }
-    response = session.post(
-        'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
-        cookies=cookies,
-        data=data,
-    )
+    data_hz = {
+        'data': '{"SFFWN":"1","DDDM":"b2c1441606da4efbb9fe5b2b89226396","DDMC":"广州理工学院(博罗校区)","QDJD":114.08675193786623,"QDWD":23.186742693715477,"RWBH":"16FC8C91BCDDEC67E0630717000A97E1","QDPL":"2"}',
+    }
+    if os.getenv('USERNAME')[:4] == '2023':
+        response = session.post(
+            'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
+            cookies=cookies,
+            data=data_hz,
+        )
+    else:
+        response = session.post(
+            'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
+            cookies=cookies,
+            data=data_by,
+        )
     global result
     try:
         if response.json()['msg'] == '成功':
