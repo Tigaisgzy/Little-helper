@@ -110,13 +110,13 @@ def doWork(session):
     }
     if os.getenv('USERNAME')[:4] == '2023':
         response = session.post(
-            'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
+            'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
             cookies=cookies,
             data=data_hz,
         )
     else:
         response = session.post(
-            'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
+            'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
             cookies=cookies,
             data=data_by,
         )
@@ -126,7 +126,6 @@ def doWork(session):
         print(result)
         return result
     except:
-        print(response.text)
         result = '查寝失败'
         return result
 
