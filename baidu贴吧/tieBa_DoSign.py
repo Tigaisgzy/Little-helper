@@ -1,16 +1,7 @@
-import sys
-
-import requests
+import requests, time, re, json, smtplib, os, pytz, urllib.parse, sys
 from datetime import *
-import time
 from lxml import etree
-import urllib.parse
-import re
-import json
-import smtplib
 from email.mime.text import MIMEText
-import pytz
-import os
 
 
 def get_count():
@@ -63,7 +54,7 @@ def do_sign(name_list):
                 result += f'{name}吧今天已经签到过了\n'
     except Exception as e:
         result += f'{name}吧签到失败\n'
-        send_QQ_email_plain(email_address,result)
+        send_QQ_email_plain(email_address, result)
         sys.exit()
     return result
 
@@ -81,8 +72,8 @@ def get_beijing_time():
 
 
 def send_QQ_email_plain(receiver, content):
-    sender = user = '1781259604@qq.com'  
-    passwd = 'tffenmnkqsveccdj'  
+    sender = user = '1781259604@qq.com'
+    passwd = 'tffenmnkqsveccdj'
 
     # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
     formatted_date = get_beijing_time()
@@ -122,7 +113,6 @@ if email_address == '':
 if BDUSS_BFESS == '' or STOKEN == '':
     print('请填写BDUSS_BFESS和STOKEN')
     exit()
-
 
 if __name__ == '__main__':
     cookies = {
