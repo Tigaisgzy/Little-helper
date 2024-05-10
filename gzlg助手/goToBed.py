@@ -126,6 +126,7 @@ def doWork(session):
         print(result)
         return result
     except:
+        print(response.text)
         result = '查寝失败'
         return result
 
