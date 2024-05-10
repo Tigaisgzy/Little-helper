@@ -31,7 +31,7 @@ jobs:
         env:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
-          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}  # 新增邮箱地址环境变量
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           TOKEN: ${{ secrets.TOKEN }}
         run: |
           python gzlg助手/goToBed.py || echo "Script failed with exit code $?"

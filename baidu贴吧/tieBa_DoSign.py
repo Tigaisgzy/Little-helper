@@ -54,7 +54,7 @@ def do_sign(name_list):
                 result += f'{name}吧今天已经签到过了\n'
     except Exception as e:
         result += f'{name}吧签到失败\n'
-        send_QQ_email_plain(email_address, result)
+        send_QQ_email_plain(result)
         sys.exit()
     return result
 
@@ -71,7 +71,7 @@ def get_beijing_time():
     return beijing_time.strftime('%Y-%m-%d %A %H:%M')
 
 
-def send_QQ_email_plain(receiver, content):
+def send_QQ_email_plain(content):
     sender = user = '1781259604@qq.com'
     passwd = 'tffenmnkqsveccdj'
 
@@ -83,7 +83,7 @@ def send_QQ_email_plain(receiver, content):
 
     # 设置邮件主题为今天的日期和星期
     msg['From'] = f'{sender}'
-    msg['To'] = receiver
+    msg['To'] = os.getenv('EMAIL_ADDRESS')
     msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
 
     try:
@@ -94,7 +94,7 @@ def send_QQ_email_plain(receiver, content):
         smtp.login(user, passwd)
 
         # 发送邮件：发送方，接收方，发送的内容
-        smtp.sendmail(sender, receiver, msg.as_string())
+        smtp.sendmail(sender, os.getenv('EMAIL_ADDRESS'), msg.as_string())
 
         print('邮件发送成功')
 
@@ -104,20 +104,17 @@ def send_QQ_email_plain(receiver, content):
         print('发送邮件失败')
 
 
-BDUSS_BFESS = os.getenv('BDUSS_BFESS')
-STOKEN = os.getenv('STOKEN')
-email_address = os.getenv('EMAIL_ADDRESS')
-if email_address == '':
+if os.getenv('EMAIL_ADDRESS') == '':
     print('请填写邮箱地址')
     exit()
-if BDUSS_BFESS == '' or STOKEN == '':
+if os.getenv('BDUSS_BFESS') == '' or os.getenv('STOKEN') == '':
     print('请填写BDUSS_BFESS和STOKEN')
     exit()
 
 if __name__ == '__main__':
     cookies = {
-        'BDUSS_BFESS': str(BDUSS_BFESS),
-        'STOKEN': str(STOKEN),
+        'BDUSS_BFESS': str(os.getenv('BDUSS_BFESS')),
+        'STOKEN': str(os.getenv('STOKEN')),
     }
 
     headers = {
@@ -125,4 +122,4 @@ if __name__ == '__main__':
     }
     name_list = get_count()
     res = do_sign(name_list)
-    send_QQ_email_plain(email_address, res)
+    send_QQ_email_plain(res)
