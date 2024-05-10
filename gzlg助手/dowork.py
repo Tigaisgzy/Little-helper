@@ -2,24 +2,19 @@
 # -*- coding: utf-8 -*-
 # @Time : 27/4/2024 下午9:55
 # @Author : G5116
-import re
-import execjs
-import json
-import requests
-import smtplib
+import re, execjs, json, requests, smtplib, os, sys, pytz
 from email.mime.text import MIMEText
-import os
-import sys
 from datetime import *
-import pytz
 
 email_address = os.getenv('EMAIL_ADDRESS')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
 token = os.getenv('TOKEN')
+
 with open('gzlg助手/g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
+
 
 def get_beijing_time():
     # 设置UTC和北京时间的时区
@@ -32,37 +27,6 @@ def get_beijing_time():
     # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
     return beijing_time.strftime('%Y-%m-%d %A %H:%M')
 
-def send_QQ_email_plain(receiver, content):
-    sender = user = '1781259604@qq.com' 
-    passwd = 'tffenmnkqsveccdj'  
-
-    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    formatted_date = get_beijing_time()
-
-    # 纯文本内容
-    msg = MIMEText(f'每周五、六定位打卡签到结果：{content}', 'plain', 'utf-8')
-
-    # 设置邮件主题为今天的日期和星期
-    msg['From'] = f'{sender}'
-    msg['To'] = receiver
-    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
-
-    try:
-        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
-        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
-
-        # 登录发送方的邮箱账号
-        smtp.login(user, passwd)
-
-        # 发送邮件：发送方，接收方，发送的内容
-        smtp.sendmail(sender, receiver, msg.as_string())
-
-        print('邮件发送成功')
-
-        smtp.quit()
-    except Exception as e:
-        print(e)
-        print('发送邮件失败')
 
 def init():
     session = requests.Session()
@@ -70,6 +34,7 @@ def init():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     return session
+
 
 def getCode(image):
     # 自动打码 注册地址 免费300积分
@@ -85,6 +50,7 @@ def getCode(image):
     result = result.replace('o', '0').replace('l', '1').replace('O', '0')
     print("识别结果:", result[:-1])
     return eval(result[:-1])
+
 
 def login(session, username, password):
     params = {'uid': ''}
@@ -118,12 +84,14 @@ def login(session, username, password):
     else:
         return response.json()['ticket']
 
+
 def UpdateCookie(session, ticket):
     params = {'ticket': ticket}
     response = session.get(
         'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/*default/index.do',
         params=params)
     session.cookies = response.cookies
+
 
 def doWork(session):
     data = {
@@ -157,12 +125,47 @@ def doWork(session):
         result = '签到失败'
         return result
 
+
+def send_QQ_email_plain(receiver, content):
+    sender = user = '1781259604@qq.com'
+    passwd = 'tffenmnkqsveccdj'
+
+    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
+    formatted_date = get_beijing_time()
+
+    # 纯文本内容
+    msg = MIMEText(f'每周五、六定位打卡签到结果：{content}', 'plain', 'utf-8')
+
+    # 设置邮件主题为今天的日期和星期
+    msg['From'] = f'{sender}'
+    msg['To'] = receiver
+    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
+
+    try:
+        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
+        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
+
+        # 登录发送方的邮箱账号
+        smtp.login(user, passwd)
+
+        # 发送邮件：发送方，接收方，发送的内容
+        smtp.sendmail(sender, receiver, msg.as_string())
+
+        print('邮件发送成功')
+
+        smtp.quit()
+    except Exception as e:
+        print(e)
+        print('发送邮件失败')
+
+
 def main():
     session = init()
     ticket = login(session, username, password)
     UpdateCookie(session, ticket)
     res = doWork(session)
     send_QQ_email_plain(email_address, res)
+
 
 if __name__ == '__main__':
     main()

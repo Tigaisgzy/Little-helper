@@ -2,22 +2,15 @@
 # -*- coding: utf-8 -*-
 # @Time : 28/4/2024 下午8:33
 # @Author : G5116
-
-import re
-import execjs
-import json
-import requests
-import smtplib
+import re, execjs, json, requests, smtplib, os, sys, pytz
 from email.mime.text import MIMEText
-import os
-import sys
 from datetime import *
-import pytz
 
 email_address = os.getenv('EMAIL_ADDRESS')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
 token = os.getenv('TOKEN')
+
 with open('gzlg助手/g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
@@ -33,39 +26,6 @@ def get_beijing_time():
     beijing_time = utc_time.astimezone(beijing_zone)
     # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
     return beijing_time.strftime('%Y-%m-%d %A %H:%M')
-
-
-def send_QQ_email_plain(receiver, content):
-    sender = user = '1781259604@qq.com' 
-    passwd = 'tffenmnkqsveccdj' 
-
-    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    formatted_date = get_beijing_time()
-
-    # 纯文本内容
-    msg = MIMEText(f'查寝结果：{content}', 'plain', 'utf-8')
-
-    # 设置邮件主题为今天的日期和星期
-    msg['From'] = f'{sender}'
-    msg['To'] = receiver
-    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
-
-    try:
-        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
-        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
-
-        # 登录发送方的邮箱账号
-        smtp.login(user, passwd)
-
-        # 发送邮件：发送方，接收方，发送的内容
-        smtp.sendmail(sender, receiver, msg.as_string())
-
-        print('邮件发送成功')
-
-        smtp.quit()
-    except Exception as e:
-        print(e)
-        print('发送邮件失败')
 
 
 def init():
@@ -163,6 +123,39 @@ def doWork(session):
     except:
         result = '查寝失败'
         return result
+
+
+def send_QQ_email_plain(receiver, content):
+    sender = user = '1781259604@qq.com'
+    passwd = 'tffenmnkqsveccdj'
+
+    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
+    formatted_date = get_beijing_time()
+
+    # 纯文本内容
+    msg = MIMEText(f'查寝结果：{content}', 'plain', 'utf-8')
+
+    # 设置邮件主题为今天的日期和星期
+    msg['From'] = f'{sender}'
+    msg['To'] = receiver
+    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
+
+    try:
+        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
+        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
+
+        # 登录发送方的邮箱账号
+        smtp.login(user, passwd)
+
+        # 发送邮件：发送方，接收方，发送的内容
+        smtp.sendmail(sender, receiver, msg.as_string())
+
+        print('邮件发送成功')
+
+        smtp.quit()
+    except Exception as e:
+        print(e)
+        print('发送邮件失败')
 
 
 def main():
