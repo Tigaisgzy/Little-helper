@@ -6,11 +6,6 @@ import re, execjs, json, requests, smtplib, os, sys, pytz
 from email.mime.text import MIMEText
 from datetime import *
 
-email_address = os.getenv('EMAIL_ADDRESS')
-username = os.getenv('USERNAME')
-password = os.getenv('PASSWORD')
-token = os.getenv('TOKEN')
-
 with open('gzlg助手/g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
@@ -42,7 +37,7 @@ def getCode(image):
     url = "http://api.jfbym.com/api/YmServer/customApi"
     payload = {
         "image": image,
-        "token": str(token),
+        "token": str(os.getenv('TOKEN')),
         "type": "10110"
     }
     resp = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
@@ -52,16 +47,16 @@ def getCode(image):
     return eval(result[:-1])
 
 
-def login(session, username, password):
+def login(session):
     params = {'uid': ''}
     yzm_url = 'https://ids.gzist.edu.cn/lyuapServer/kaptcha'
     response = session.get(yzm_url, params=params)
     uid = response.json()['uid']
     yzm_base64 = re.search('base64,(.*)', response.json()['content']).group(1)
     yzm = getCode(yzm_base64)
-    psw = ctx.call('G5116', username, password, '')
+    psw = ctx.call('G5116', os.getenv('USERNAME'), os.getenv('PASSWORD'), '')
     data = {
-        'username': username,
+        'username': os.getenv('USERNAME'),
         'password': str(psw),
         'service': 'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/*default/index.do',
         'loginType': '',
@@ -126,7 +121,7 @@ def doWork(session):
         return result
 
 
-def send_QQ_email_plain(receiver, content):
+def send_QQ_email_plain(content):
     sender = user = '1781259604@qq.com'
     passwd = 'tffenmnkqsveccdj'
 
@@ -138,7 +133,7 @@ def send_QQ_email_plain(receiver, content):
 
     # 设置邮件主题为今天的日期和星期
     msg['From'] = f'{sender}'
-    msg['To'] = receiver
+    msg['To'] = os.getenv('EMAIL_ADDRESS')
     msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
 
     try:
@@ -149,7 +144,7 @@ def send_QQ_email_plain(receiver, content):
         smtp.login(user, passwd)
 
         # 发送邮件：发送方，接收方，发送的内容
-        smtp.sendmail(sender, receiver, msg.as_string())
+        smtp.sendmail(sender, os.getenv('EMAIL_ADDRESS'), msg.as_string())
 
         print('邮件发送成功')
 
@@ -159,12 +154,15 @@ def send_QQ_email_plain(receiver, content):
         print('发送邮件失败')
 
 
+email_address = os.getenv('EMAIL_ADDRESS')
+
+
 def main():
     session = init()
-    ticket = login(session, username, password)
+    ticket = login(session)
     UpdateCookie(session, ticket)
     res = doWork(session)
-    send_QQ_email_plain(email_address, res)
+    send_QQ_email_plain(res)
 
 
 if __name__ == '__main__':
