@@ -1,6 +1,6 @@
 import requests, re, json, smtplib, os, pytz, urllib.parse, sys
-import time
 from datetime import *
+import time
 from lxml import etree
 from email.mime.text import MIMEText
 
