@@ -33,6 +33,11 @@
 
 4. 配置成功后，在仓库的Actions中查看运行情况
 
+5. 效果图 
+
+![img.png](gzlg助手/img/img5.png) 
+![img.png](gzlg助手/img/img6.png)
+
 
 # 贴吧签到
 
