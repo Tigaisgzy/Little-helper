@@ -42,7 +42,7 @@ def getCode(image):
     }
     resp = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
     result = resp.json()["data"]["data"]
-    result = result.replace('o', '0').replace('l', '1').replace('O', '0').replace('十','+').replace('三','')
+    result = result.replace('o', '0').replace('l', '1').replace('O', '0').replace('十', '+').replace('三', '')
     print("识别结果:", result[:-1])
     return eval(result[:-1])
 
@@ -108,13 +108,15 @@ def doWork(session):
     data_hz = {
         'data': '{"SFFWN":"1","DDDM":"b2c1441606da4efbb9fe5b2b89226396","DDMC":"广州理工学院(博罗校区)","QDJD":114.08675193786623,"QDWD":23.186742693715477,"RWBH":"16FC8C91BCDDEC67E0630717000A97E1","QDPL":"2"}',
     }
-    if os.getenv('USERNAME')[:4] == '2023':
+    if int(os.getenv('USERNAME')[:4]) >= 2023:
+        print('定位hz')
         response = session.post(
             'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
             cookies=cookies,
             data=data_hz,
         )
     else:
+        print('定位by')
         response = session.post(
             'https://xsfw.gzist.edu.cn/xsfw/sys/swmqdzsapp/MobileJrqdController/doSignIn.do',
             cookies=cookies,

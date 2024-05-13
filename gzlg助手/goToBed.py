@@ -115,12 +115,14 @@ def doWork(session):
     }
     # logging.log(logging.INFO, '开始签到任务')
     if int(os.getenv('USERNAME')[:4]) >= 2023:
+        print('定位hz')
         response = session.post(
             'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
             cookies=cookies,
             data=data_hz,
         )
     else:
+        print('定位hz')
         response = session.post(
             'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
             cookies=cookies,
