@@ -122,7 +122,7 @@ def doWork(session):
             data=data_hz,
         )
     else:
-        print('定位hz')
+        print('定位by')
         response = session.post(
             'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
             cookies=cookies,
