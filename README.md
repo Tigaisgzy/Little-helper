@@ -10,9 +10,10 @@
     如若使用的是QQ邮箱，第一次请检查是否被当做垃圾邮件，是的话，请将邮件标记为非垃圾邮件
 
 ## 变量在仓库的Settings --> Secrets中配置
+   [学工平台](https://ids.gzist.edu.cn/lyuapServer/login)
 
-    USERNAME # 账号
-    PASSWORD # 密码
+    USERNAME # 上面学工平台的账号
+    PASSWORD # 上面学工平台的密码
     EMAIL_ADDRESS # 结果发送邮箱地址
     TOKEN # 打码平台密钥
 
