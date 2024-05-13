@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time : 28/4/2024 下午8:33
 # @Author : G5116
-import re, execjs, json, requests, smtplib, os, sys, pytz
+import re, execjs, json, requests, smtplib, os, sys, pytz,logging
 from email.mime.text import MIMEText
 from datetime import *
 
@@ -43,7 +43,7 @@ def getCode(image):
     resp = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
     result = resp.json()["data"]["data"]
     result = result.replace('o', '0').replace('l', '1').replace('O', '0').replace('十','+').replace('三','')
-    print("识别结果:", result[:-1])
+    logging.log('验证码识别结果：' + result)
     return eval(result[:-1])
 
 
@@ -65,18 +65,22 @@ def login(session):
     }
     response = session.post('https://ids.gzist.edu.cn/lyuapServer/v1/tickets', data=data)
     if 'NOUSER' in response.json():
+        logging.error('登录异常')
         result = '账号不存在'
         send_QQ_email_plain(result)
         sys.exit(1)
     elif 'PASSERROR' in response.json():
+        logging.error('登录异常')
         result = '密码错误'
         send_QQ_email_plain(result)
         sys.exit(1)
     elif 'CODEFALSE' in response.json():
+        logging.error('登录异常')
         result = '验证码错误'
         send_QQ_email_plain(result)
         sys.exit(1)
     else:
+        logging.log('登录成功')
         return response.json()['ticket']
 
 
@@ -108,7 +112,7 @@ def doWork(session):
     data_hz = {
         'data': '{"SFFWN":"1","DDDM":"b2c1441606da4efbb9fe5b2b89226396","DDMC":"广州理工学院(博罗校区)","QDJD":114.08675193786623,"QDWD":23.186742693715477,"RWBH":"16FC8C91BCDDEC67E0630717000A97E1","QDPL":"2"}',
     }
-    print(int(os.getenv('USERNAME')[:4]))
+    logging.log('开始签到任务')
     if int(os.getenv('USERNAME')[:4]) >= 2023:
         response = session.post(
             'https://xsfw.gzist.edu.cn/xsfw/sys/swmzncqapp/modules/studentCheckController/uniFormSignUp.do',
@@ -124,9 +128,10 @@ def doWork(session):
     global result
     try:
         result = response.json()['msg']
-        print(result)
+        logging.log('签到结果: '+result)
         return result
     except:
+        logging.error('签到异常')
         result = '查寝失败'
         return result
 
