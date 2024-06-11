@@ -183,4 +183,16 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    max_attempts = 5
+    attempt = 0
+    while attempt < max_attempts:
+        try:
+            main()
+            print("执行成功！")
+            break
+        except Exception as e:
+            attempt += 1
+            print(f"尝试 {attempt} 次失败，错误信息：{e}")
+            if attempt == max_attempts:
+                send_QQ_email_plain(f'连续' + str(max_attempts) + '次执行失败！请手动查寝！')
+                print("已达最大尝试次数，程序结束。")
