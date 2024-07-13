@@ -123,5 +123,5 @@ if __name__ == '__main__':
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0'
     }
     name_list = get_count()
-    res = do_sign(name_list)
-    send_QQ_email_plain(res)
+    # res = do_sign(name_list)
+    # send_QQ_email_plain(res)
