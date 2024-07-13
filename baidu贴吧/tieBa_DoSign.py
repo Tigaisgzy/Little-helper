@@ -18,9 +18,8 @@ def get_count():
     name_list = []
     tree_list = tree.xpath('//div[@class="forum_table"]/table/tr')
     count = len(tree_list) - 1
-    for i in range(2, count + 1):
-        name = tree.xpath(f'//div[@class="forum_table"]/table/tr[{i}]/td[1]//text()')[0]
-        print(name)
+    for i in range(1, count + 1):
+        name = tree_list[i].xpath('./td[1]/a/text()')[0]
         name_list.append(name)
 
     return name_list
@@ -123,5 +122,5 @@ if __name__ == '__main__':
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0'
     }
     name_list = get_count()
-    # res = do_sign(name_list)
-    # send_QQ_email_plain(res)
+    res = do_sign(name_list)
+    send_QQ_email_plain(res)
