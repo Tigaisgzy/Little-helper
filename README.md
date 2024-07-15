@@ -1,6 +1,8 @@
 > [doSignIn AND goToBed](#dosignin-and-gotobed)
 > 
 > [贴吧签到](#贴吧签到)
+> 
+> [微博超话签到](#微博超话签到)
 
 # doSignIn AND goToBed
 
@@ -56,6 +58,12 @@
 3. 配置定时任务
 
 4. 配置成功后，在仓库的Actions中查看运行情况
+
+# 微博超话签到
+   
+   自动获取超话列表，自动签到
+   使用方法与贴吧签到相同
+> SUB_TOKEN 只需要这个cookie，有效期一年
 
 
 
