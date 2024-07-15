@@ -32,5 +32,5 @@ jobs:
           SUB_TOKEN: ${{ secrets.SUB_TOKEN }}
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
         run: |
-          python gzlg助手/dowork.py || echo "Script failed with exit code $?"
+          python weibo/chaohua_dosign.py || echo "Script failed with exit code $?"
         
