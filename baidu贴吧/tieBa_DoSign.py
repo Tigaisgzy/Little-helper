@@ -23,7 +23,8 @@ def get_count():
     return name_list
 
 
-def sign_thread(name):
+def sign_thread(name, results, lock):
+    message = ''
     try:
         url_name = urllib.parse.quote(name)
         url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
@@ -41,20 +42,25 @@ def sign_thread(name):
         response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
         json_data = json.loads(response.text)
         if json_data["no"] == 0:
-            print(f'{name}吧签到成功')
+            message = f'{name}吧签到成功'
         elif json_data["no"] == 1101:
-            print(f'{name}吧今天已经签到过了')
+            message = f'{name}吧今天已经签到过了'
     except Exception as e:
-        print(f'{name}吧签到失败')
-        email_sender.send_QQ_email_plain(f'{name}吧签到失败')
+        message = f'{name}吧签到失败'
+
+    with lock:
+        results.append(message)
 
 
 def main():
     start_time = time.time()
+    results = []
+    lock = threading.Lock()
     name_list = get_count()
     threads = []
+
     for name in name_list:
-        thread = threading.Thread(target=sign_thread, args=(name,))
+        thread = threading.Thread(target=sign_thread, args=(name, results, lock))
         thread.start()
         threads.append(thread)
 
@@ -63,7 +69,8 @@ def main():
 
     end_time = time.time()
     total_time = end_time - start_time
-    print(f"所有任务完成总耗时：{total_time:.2f}秒")
+    results.append(f"所有任务完成总耗时：{total_time:.2f}秒")
+    email_sender.send_QQ_email_plain('\n'.join(results))
 
 
 if __name__ == '__main__':
