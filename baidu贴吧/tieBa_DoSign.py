@@ -1,8 +1,8 @@
-import requests, re, json, smtplib, os, pytz, urllib.parse, sys
+import requests, re, json, os, urllib.parse, sys
 from datetime import *
 import time
 from lxml import etree
-from email.mime.text import MIMEText
+from ..utils import email_sender
 
 
 def get_count():
@@ -55,54 +55,9 @@ def do_sign(name_list):
                 result += f'{name}吧今天已经签到过了\n'
     except Exception as e:
         result += f'{name}吧签到失败\n'
-        send_QQ_email_plain(result)
+        email_sender.send_QQ_email_plain(result)
         sys.exit()
     return result
-
-
-def get_beijing_time():
-    # 设置UTC和北京时间的时区
-    utc_zone = pytz.utc
-    beijing_zone = pytz.timezone('Asia/Shanghai')
-    # 获取当前的UTC时间，并添加UTC时区信息
-    utc_time = datetime.now(utc_zone)
-    # 将UTC时间转换为北京时间
-    beijing_time = utc_time.astimezone(beijing_zone)
-    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    return beijing_time.strftime('%Y-%m-%d %A %H:%M')
-
-
-def send_QQ_email_plain(content):
-    sender = user = '1781259604@qq.com'
-    passwd = 'tffenmnkqsveccdj'
-
-    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    formatted_date = get_beijing_time()
-
-    # 纯文本内容
-    msg = MIMEText(f'签到结果：{content}', 'plain', 'utf-8')
-
-    # 设置邮件主题为今天的日期和星期
-    msg['From'] = f'{sender}'
-    msg['To'] = os.getenv('EMAIL_ADDRESS')
-    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
-
-    try:
-        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
-        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
-
-        # 登录发送方的邮箱账号
-        smtp.login(user, passwd)
-
-        # 发送邮件：发送方，接收方，发送的内容
-        smtp.sendmail(sender, os.getenv('EMAIL_ADDRESS'), msg.as_string())
-
-        print('邮件发送成功')
-
-        smtp.quit()
-    except Exception as e:
-        print(e)
-        print('发送邮件失败')
 
 
 if os.getenv('EMAIL_ADDRESS') == '':
@@ -123,4 +78,4 @@ if __name__ == '__main__':
     }
     name_list = get_count()
     res = do_sign(name_list)
-    send_QQ_email_plain(res)
+    email_sender.send_QQ_email_plain(res)
