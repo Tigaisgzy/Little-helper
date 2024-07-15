@@ -1,4 +1,4 @@
-name: dosing
+name: tb_dosing
 # 测试的话打开这个来测试变量值之类的是否填写正确
 #on:
 #  push:  # 任何推送到仓库都会触发这个工作流
