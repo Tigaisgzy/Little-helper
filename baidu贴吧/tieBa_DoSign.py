@@ -35,8 +35,8 @@ def get_count():
 def do_sign(name_list):
     result = ''
     try:
+        start_time = time.time()
         for name in name_list:
-            # print(f'正在签到{name}吧')
             url_name = urllib.parse.quote(name)
             url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
             response = requests.get(url)
@@ -64,6 +64,8 @@ def do_sign(name_list):
         result += f'{name}吧签到失败\n'
         email_sender.send_QQ_email_plain(result)
         sys.exit()
+    end_time = time.time()
+    print(f"所有任务完成耗时：{end_time - start_time:.2f}秒")
     return result
 
 
