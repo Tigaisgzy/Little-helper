@@ -1,0 +1,36 @@
+name: ch_dosing
+# 测试的话打开这个来测试变量值之类的是否填写正确
+on:
+  push:  # 任何推送到仓库都会触发这个工作流
+
+#on:
+#  schedule:
+#    - cron: '50 10 * * *' # 10对应的是北京时间晚上六点 50是分钟 表示每天晚上六点五十执行，可以改成任意时间测试
+
+#on:
+#  schedule: # 每天下午12点执行 时差为 +8
+#    - cron: '0 04 * * *'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install Pyexecjs requests pytz
+
+      - name: Run python script
+        env:
+          SUB_TOKEN: ${{ secrets.SUB_TOKEN }}
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+        run: |
+          python gzlg助手/dowork.py || echo "Script failed with exit code $?"
+        
