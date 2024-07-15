@@ -21,7 +21,7 @@ def get_super_info_list():
     }
     response = requests.get('https://weibo.com/ajax/profile/topicContent?tabid=231093_-_chaohua', cookies=cookies,
                             headers=headers)
-    if 'url' in response.json():
+    if 'url' in response.text:
         print('cookie失效，请重新获取')
         email_sender.send_QQ_email_plain('微博超话签到失败！cookie失效，请更新')
         exit(0)
