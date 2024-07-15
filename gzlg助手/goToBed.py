@@ -2,25 +2,19 @@
 # -*- coding: utf-8 -*-
 # @Time : 28/4/2024 下午8:33
 # @Author : G5116
-import re, execjs, json, requests, smtplib, os, sys, pytz, logging
-from email.mime.text import MIMEText
-from datetime import *
+import re, execjs, json, requests, os, sys
+
+# 获取当前文件的目录
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# 获取项目根目录
+project_root = os.path.dirname(current_dir)
+# 将项目根目录添加到 sys.path
+sys.path.append(project_root)
+from utils import email_sender
 
 with open('gzlg助手/g5116.js', 'r', encoding='utf-8') as f:
     js = f.read()
 ctx = execjs.compile(js)
-
-
-def get_beijing_time():
-    # 设置UTC和北京时间的时区
-    utc_zone = pytz.utc
-    beijing_zone = pytz.timezone('Asia/Shanghai')
-    # 获取当前的UTC时间，并添加UTC时区信息
-    utc_time = datetime.now(utc_zone)
-    # 将UTC时间转换为北京时间
-    beijing_time = utc_time.astimezone(beijing_zone)
-    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    return beijing_time.strftime('%Y-%m-%d %A %H:%M')
 
 
 def init():
@@ -68,17 +62,17 @@ def login(session):
     if 'NOUSER' in response.json():
         # logging.error('登录异常')
         result = '账号不存在'
-        send_QQ_email_plain(result)
+        email_sender.send_QQ_email_plain(result)
         sys.exit(1)
     elif 'PASSERROR' in response.json():
         # logging.error('登录异常')
         result = '密码错误'
-        send_QQ_email_plain(result)
+        email_sender.send_QQ_email_plain(result)
         sys.exit(1)
     elif 'CODEFALSE' in response.json():
         # logging.error('登录异常')
         result = '验证码错误'
-        send_QQ_email_plain(result)
+        email_sender.send_QQ_email_plain(result)
         sys.exit(1)
     else:
         # logging.log(logging.INFO, '登录成功')
@@ -141,45 +135,12 @@ def doWork(session):
         return result
 
 
-def send_QQ_email_plain(content):
-    sender = user = '1781259604@qq.com'
-    passwd = 'tffenmnkqsveccdj'
-
-    # 格式化北京时间为 "年-月-日 星期几 时:分" 格式
-    formatted_date = get_beijing_time()
-
-    # 纯文本内容
-    msg = MIMEText(f'查寝结果：{content}', 'plain', 'utf-8')
-
-    # 设置邮件主题为今天的日期和星期
-    msg['From'] = f'{sender}'
-    msg['To'] = os.getenv('EMAIL_ADDRESS')
-    msg['Subject'] = f'{formatted_date}'  # 设置邮件主题
-
-    try:
-        # 建立 SMTP 、SSL 的连接，连接发送方的邮箱服务器
-        smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
-
-        # 登录发送方的邮箱账号
-        smtp.login(user, passwd)
-
-        # 发送邮件：发送方，接收方，发送的内容
-        smtp.sendmail(sender, os.getenv('EMAIL_ADDRESS'), msg.as_string())
-
-        print('邮件发送成功')
-
-        smtp.quit()
-    except Exception as e:
-        print(e)
-        print('发送邮件失败')
-
-
 def main():
     session = init()
     ticket = login(session)
     UpdateCookie(session, ticket)
     res = doWork(session)
-    send_QQ_email_plain(res)
+    email_sender.send_QQ_email_plain(res)
 
 
 if __name__ == '__main__':
@@ -194,5 +155,5 @@ if __name__ == '__main__':
             attempt += 1
             print(f"尝试 {attempt} 次失败，错误信息：{e}")
             if attempt == max_attempts:
-                send_QQ_email_plain(f'连续' + str(max_attempts) + '次执行失败！请手动查寝！')
+                email_sender.send_QQ_email_plain(f'连续' + str(max_attempts) + '次执行失败！请手动查寝！')
                 print("已达最大尝试次数，程序结束。")
