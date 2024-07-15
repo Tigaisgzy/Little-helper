@@ -37,7 +37,8 @@ def get_super_info_list():
 # 读取固定参数文件
 def load_params():
     params = {}
-    with open('ch_fixed_params', 'r', encoding='utf-8') as file:
+    file_path = os.path.join(current_dir, 'ch_fixed_params')
+    with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
             key, value = line.strip().split('=')
             params[key] = value
