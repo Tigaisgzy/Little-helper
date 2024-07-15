@@ -2,7 +2,14 @@ import requests, re, json, os, urllib.parse, sys
 from datetime import *
 import time
 from lxml import etree
-from ..utils import email_sender
+
+# 获取当前文件的目录
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# 获取项目根目录
+project_root = os.path.dirname(current_dir)
+# 将项目根目录添加到 sys.path
+sys.path.append(project_root)
+from utils import email_sender
 
 
 def get_count():
