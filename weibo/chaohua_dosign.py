@@ -83,6 +83,7 @@ def main():
     threads = []
     results = []
     lock = threading.Lock()
+    start_time = time.time()
     for super_info in super_info_list:
         thread = threading.Thread(target=start_sign, args=(super_info, lock, results))
         thread.start()
@@ -91,8 +92,10 @@ def main():
     # 等待所有线程完成
     for thread in threads:
         thread.join()
-
+    end_time = time.time()
     # 汇总结果并发送邮件
+    total_time = end_time - start_time
+    results.append(f"{len(super_info_list)}个超话签到完成总耗时：{total_time:.2f}秒")
     final_result = ''.join(results)
     email_sender.send_QQ_email_plain(final_result)
 
