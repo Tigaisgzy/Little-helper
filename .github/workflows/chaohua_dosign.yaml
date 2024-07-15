@@ -12,7 +12,6 @@ on:
     - cron: '0 04 * * *'
 
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
