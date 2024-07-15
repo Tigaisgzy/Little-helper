@@ -4,6 +4,9 @@
 > 
 > [微博超话签到](#微博超话签到)
 
+# 提示
+**如果某个自动打卡不需要，只需要在仓库的workflows文件夹下，将不需要的yaml文件删除即可**
+
 # doSignIn AND goToBed
 
     doSignIn是签到
