@@ -69,7 +69,7 @@ def main():
 
     end_time = time.time()
     total_time = end_time - start_time
-    results.append(f"所有任务完成总耗时：{total_time:.2f}秒")
+    results.append(f"{len(name_list)}个贴吧签到完成总耗时：{total_time:.2f}秒")
     email_sender.send_QQ_email_plain('\n'.join(results))
 
 
