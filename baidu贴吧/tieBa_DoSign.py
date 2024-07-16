@@ -43,7 +43,6 @@ def sign_thread(name, results, lock, success_count, retry_count=3):
             data = {'ie': 'utf-8', 'kw': name, 'tbs': tbs_value}
             response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
             json_data = json.loads(response.text)
-            print(json_data)
             if json_data["no"] == 0:
                 message = f'{name}吧签到成功'
                 break
@@ -68,15 +67,7 @@ def main():
     results = []
     lock = threading.Lock()
     name_list = get_count()
-    threads = []
     max_workers = 10  # 控制最大线程数量
-    # for name in name_list:
-    #     thread = threading.Thread(target=sign_thread, args=(name, results, lock, success_count))
-    #     thread.start()
-    #     threads.append(thread)
-    #
-    # for thread in threads:
-    #     thread.join()
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(sign_thread, name, results, lock, success_count) for name in name_list]
