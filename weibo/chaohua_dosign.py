@@ -71,7 +71,7 @@ def start_sign(super_info, lock, results):
         params=data
     )
     result = ''
-    if response.json()['code'] == 100000:
+    if response.json()['code'] == '100000':
         result += super_info['name'] + '超话' + '签到成功\n'
     elif response.json()['code'] == 382004:
         result += super_info['name'] + '超话' + '今天已经签到过了\n'
