@@ -85,25 +85,14 @@ def start_sign(super_info, lock, results):
 
 def main():
     super_info_list = get_super_info_list()
-    threads = []
     results = []
     lock = threading.Lock()
     start_time = time.time()
     max_workers = 10  # 控制最大线程数量
-    # for super_info in super_info_list:
-    #     thread = threading.Thread(target=start_sign, args=(super_info, lock, results))
-    #     thread.start()
-    #     threads.append(thread)
-    #
-    # # 等待所有线程完成
-    # for thread in threads:
-    #     thread.join()
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(start_sign, super_info, lock, results) for super_info in super_info_list]
         for future in as_completed(futures):
-            result = future.result()
-            with lock:
-                results.append(result)
+            future.result()
     end_time = time.time()
     # 汇总结果并发送邮件
     total_time = end_time - start_time
