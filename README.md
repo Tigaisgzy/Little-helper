@@ -6,18 +6,21 @@
 # 提示
 **如果某个自动打卡不需要，只需要在仓库的workflows文件夹下，将不需要的yaml文件删除即可**
 
+### 效果图
+![result_img.png](utils/help_img/result_img.png)
+
 # 贴吧签到
 
 1. 先fork仓库
-   ![img.png](../auto-do-bed-sign/gzlg助手/img/img4.png)
+   ![fork_img.png](utils/help_img/fork_img.png)
 2. 在仓库的Settings --> Secrets中配置变量
 
 > BDUSS_BFESS 这两个去网页版登录后在cookie里找
 > 
 > STOKEN      好像能用挺久的一次
 
-![img_1.png](../auto-do-bed-sign/gzlg助手/img/img_1.png)
-![img_2.png](../auto-do-bed-sign/gzlg助手/img/img_2.png)
+![seetings_img.png](utils/help_img/seetings_img.png)
+![action_img.png](utils/help_img/action_img.png)
 
 3. 配置定时任务
 
