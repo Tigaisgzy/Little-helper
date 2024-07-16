@@ -45,10 +45,13 @@ def sign_thread(name, results, lock, success_count, retry_count=3):
             print(json_data)
             if json_data["no"] == 0:
                 message = f'{name}吧签到成功'
+                break
             elif json_data["no"] == 1101:
                 message = f'{name}吧今天已经签到过了'
+                break
         except Exception as e:
-            message = f'{name}吧签到失败'
+            message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {str(e)}'
+            break
         time.sleep(2)  # 等待一段时间后重试
     else:
         message = f'{name}吧签到失败, 已重试{retry_count}次'
