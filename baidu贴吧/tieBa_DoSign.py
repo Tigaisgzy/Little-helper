@@ -23,38 +23,43 @@ def get_count():
     return name_list
 
 
-def sign_thread(name, results, lock, success_count):
+def sign_thread(name, results, lock, success_count, retry_count=3):
     message = ''
-    try:
-        url_name = urllib.parse.quote(name)
-        url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
-        response = requests.get(url)
-        tree = etree.HTML(response.text)
-        time.sleep(1)
-        tbs = tree.xpath('/html/head/script[1]')[0].text
-        tbs_data = re.search(r'var PageData = ({.*?});', tbs, re.DOTALL)
-        if tbs_data:
-            cleaned_json = tbs_data.group(1).replace("'", '"')
-            page_data_dict = json.loads(cleaned_json)
-            tbs_value = page_data_dict['tbs']
+    for attempt in range(retry_count):
+        try:
+            url_name = urllib.parse.quote(name)
+            url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
+            response = requests.get(url)
+            tree = etree.HTML(response.text)
+            time.sleep(1)
+            tbs = tree.xpath('/html/head/script[1]')[0].text
+            tbs_data = re.search(r'var PageData = ({.*?});', tbs, re.DOTALL)
+            if tbs_data:
+                cleaned_json = tbs_data.group(1).replace("'", '"')
+                page_data_dict = json.loads(cleaned_json)
+                tbs_value = page_data_dict['tbs']
 
-        data = {'ie': 'utf-8', 'kw': name, 'tbs': tbs_value}
-        response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
-        json_data = json.loads(response.text)
-        if json_data["no"] == 0:
-            message = f'{name}吧签到成功'
-        elif json_data["no"] == 1101:
-            message = f'{name}吧今天已经签到过了'
-    except Exception as e:
-        message = f'{name}吧签到失败'
+            data = {'ie': 'utf-8', 'kw': name, 'tbs': tbs_value}
+            response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
+            json_data = json.loads(response.text)
+            print(json_data)
+            if json_data["no"] == 0:
+                message = f'{name}吧签到成功'
+            elif json_data["no"] == 1101:
+                message = f'{name}吧今天已经签到过了'
+        except Exception as e:
+            message = f'{name}吧签到失败'
+        time.sleep(2)  # 等待一段时间后重试
+    else:
+        message = f'{name}吧签到失败, 已重试{retry_count}次'
 
     with lock:
-        success_count += 1
+        success_count[0] += 1  # 使用列表的第一个元素作为可变的计数器
         results.append(message)
 
 
 def main():
-    success_count = 0
+    success_count = [0]  # 使用列表来存储成功计数
     start_time = time.time()
     results = []
     lock = threading.Lock()
@@ -71,7 +76,7 @@ def main():
 
     end_time = time.time()
     total_time = end_time - start_time
-    results.append(f"{success_count}个贴吧签到完成总耗时：{total_time:.2f}秒")
+    results.append(f"{success_count[0]}个贴吧签到完成总耗时：{total_time:.2f}秒")
     email_sender.send_QQ_email_plain('\n'.join(results))
 
 
