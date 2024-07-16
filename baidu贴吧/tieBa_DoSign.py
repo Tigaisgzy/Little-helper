@@ -23,7 +23,7 @@ def get_count():
     return name_list
 
 
-def sign_thread(name, results, lock):
+def sign_thread(name, results, lock, success_count):
     message = ''
     try:
         url_name = urllib.parse.quote(name)
@@ -49,10 +49,12 @@ def sign_thread(name, results, lock):
         message = f'{name}吧签到失败'
 
     with lock:
+        success_count += 1
         results.append(message)
 
 
 def main():
+    success_count = 0
     start_time = time.time()
     results = []
     lock = threading.Lock()
@@ -60,7 +62,7 @@ def main():
     threads = []
 
     for name in name_list:
-        thread = threading.Thread(target=sign_thread, args=(name, results, lock))
+        thread = threading.Thread(target=sign_thread, args=(name, results, lock, success_count))
         thread.start()
         threads.append(thread)
 
@@ -69,7 +71,7 @@ def main():
 
     end_time = time.time()
     total_time = end_time - start_time
-    results.append(f"{len(name_list)}个贴吧签到完成总耗时：{total_time:.2f}秒")
+    results.append(f"{success_count}个贴吧签到完成总耗时：{total_time:.2f}秒")
     email_sender.send_QQ_email_plain('\n'.join(results))
 
 
