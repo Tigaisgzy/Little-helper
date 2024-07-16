@@ -1,6 +1,7 @@
 import requests, re, json, os, sys, urllib.parse, time, threading
 from datetime import datetime
 from lxml import etree
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 获取当前文件的目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -68,14 +69,19 @@ def main():
     lock = threading.Lock()
     name_list = get_count()
     threads = []
+    max_workers = 10  # 控制最大线程数量
+    # for name in name_list:
+    #     thread = threading.Thread(target=sign_thread, args=(name, results, lock, success_count))
+    #     thread.start()
+    #     threads.append(thread)
+    #
+    # for thread in threads:
+    #     thread.join()
 
-    for name in name_list:
-        thread = threading.Thread(target=sign_thread, args=(name, results, lock, success_count))
-        thread.start()
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(sign_thread, name, results, lock, success_count) for name in name_list]
+        for future in as_completed(futures):
+            future.result()  # 获取线程执行结果
 
     end_time = time.time()
     total_time = end_time - start_time
