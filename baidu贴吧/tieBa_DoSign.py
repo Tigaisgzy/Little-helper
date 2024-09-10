@@ -16,14 +16,17 @@ def get_count():
     timestamp_with_microseconds = int(datetime.now().timestamp() * 1000)
     params = {'v': str(timestamp_with_microseconds)}
     response = requests.get('https://tieba.baidu.com/f/like/mylike', params=params, cookies=cookies, headers=headers)
+    if len(response.text) <= 4932:
+        email_sender.send_QQ_email_plain('获取贴吧列表失败，请更新cookie')
+        exit()
     tree = etree.HTML(response.text)
     time.sleep(1)
     tree_list = tree.xpath('//div[@class="forum_table"]/table/tr')
     count = len(tree_list) - 1
-    print(f'共有{count}个贴吧')
+    # print(f'共有{count}个贴吧')
     name_list = [tree_list[i].xpath('./td[1]/a/text()')[0] for i in range(1, count + 1)]
-    for name in name_list:
-        print(name)
+    # for name in name_list:
+    #     print(name)
     return name_list
 
 
