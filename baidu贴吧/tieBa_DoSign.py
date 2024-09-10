@@ -20,6 +20,7 @@ def get_count():
     time.sleep(1)
     tree_list = tree.xpath('//div[@class="forum_table"]/table/tr')
     count = len(tree_list) - 1
+    print(f'共有{count}个贴吧')
     name_list = [tree_list[i].xpath('./td[1]/a/text()')[0] for i in range(1, count + 1)]
     for name in name_list:
         print(name)
