@@ -21,6 +21,8 @@ def get_count():
     tree_list = tree.xpath('//div[@class="forum_table"]/table/tr')
     count = len(tree_list) - 1
     name_list = [tree_list[i].xpath('./td[1]/a/text()')[0] for i in range(1, count + 1)]
+    for name in name_list:
+        print(name)
     return name_list
 
 
