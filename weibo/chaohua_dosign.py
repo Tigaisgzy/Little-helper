@@ -16,11 +16,12 @@ from utils import email_sender
 
 
 # 获取已关注超话列表信息
-def get_super_info_list():
+def get_super_info_list(page):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
     }
-    response = requests.get('https://weibo.com/ajax/profile/topicContent?tabid=231093_-_chaohua', cookies=cookies,
+    response = requests.get(f'https://weibo.com/ajax/profile/topicContent?tabid=231093_-_chaohua&page={page}',
+                            cookies=cookies,
                             headers=headers)
     if 'url' in response.text:
         print('cookie失效，请重新获取')
@@ -84,7 +85,14 @@ def start_sign(super_info, lock, results):
 
 
 def main():
-    super_info_list = get_super_info_list()
+    super_info_list = []
+    page = 1
+    while True:
+        res = get_super_info_list(page)
+        if len(res) == 0:
+            break
+        super_info_list += res
+        page += 1
     results = []
     lock = threading.Lock()
     start_time = time.time()
