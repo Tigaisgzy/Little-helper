@@ -15,104 +15,136 @@ sys.path.append(project_root)
 from utils import email_sender
 
 
-# 获取已关注超话列表信息（支持分页）
+# 获取已关注超话列表信息（基于真实API机制）
 def get_super_info_list():
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     }
     
     all_super_info_list = []
-    since_id = None
+    seen_ids = set()  # 用于去重（防止意外重复）
     page = 1
+    max_page = None
+    total_number = None
     
     while True:
-        # 构建请求URL，添加分页参数
-        url = 'https://weibo.com/ajax/profile/topicContent?tabid=231093_-_chaohua'
-        if since_id:
-            url += f'&since_id={since_id}'
+        # 使用标准的page参数
+        url = f'https://weibo.com/ajax/profile/topicContent?tabid=231093_-_chaohua&page={page}'
         
         try:
             response = requests.get(url, cookies=cookies, headers=headers, timeout=10)
             
-            # 检查cookie是否失效
-            if 'url' in response.text or response.status_code != 200:
+            # 检查HTTP状态
+            if response.status_code != 200:
                 if page == 1:
-                    print('cookie失效，请重新获取')
-                    email_sender.send_QQ_email_plain('微博超话签到失败！cookie失效，请更新')
+                    print(f'HTTP错误: {response.status_code}')
+                    email_sender.send_QQ_email_plain('微博超话签到失败！HTTP请求失败')
+                    exit(0)
+                else:
+                    print(f'第{page}页HTTP错误，停止获取')
+                    break
+            
+            # 检查cookie是否失效
+            if 'url' in response.text:
+                print('cookie失效，请重新获取')
+                email_sender.send_QQ_email_plain('微博超话签到失败！cookie失效，请更新')
+                exit(0)
+            
+            data = response.json()
+            
+            # 检查API响应状态
+            if data.get('ok') != 1:
+                print(f'API响应错误: {data}')
+                if page == 1:
                     exit(0)
                 else:
                     break
             
-            data = response.json()
-            
-            # 检查响应数据结构
-            if 'data' not in data or 'list' not in data['data']:
+            # 检查数据结构
+            if 'data' not in data:
+                print('响应数据结构异常')
                 break
                 
-            super_list = data['data']['list']
+            data_content = data['data']
+            super_list = data_content.get('list', [])
             
-            # 如果没有数据或数据为空，说明已经到最后一页
+            # 获取分页信息（第一页时）
+            if page == 1:
+                max_page = data_content.get('max_page', 1)
+                total_number = data_content.get('total_number', 0)
+                print(f'总共{total_number}个超话，共{max_page}页')
+            
+            # 检查是否超出最大页数
+            if max_page and page > max_page:
+                print(f'已达到最大页数{max_page}，停止获取')
+                break
+            
+            # 检查当前页是否有数据
             if not super_list:
+                print(f'第{page}页无数据，已获取完毕')
                 break
             
             # 处理当前页的超话数据
             page_super_info_list = []
+            new_items_count = 0
+            
             for super in super_list:
                 try:
                     super_id = str(super['link'].split('/')[-1])
                     super_title = str(super['title'])
-                    super_info = {
-                        'name': super_title,
-                        'id': super_id
-                    }
-                    page_super_info_list.append(super_info)
+                    
+                    # 去重检查（虽然API应该不会重复，但保险起见）
+                    if super_id not in seen_ids:
+                        seen_ids.add(super_id)
+                        super_info = {
+                            'name': super_title,
+                            'id': super_id
+                        }
+                        page_super_info_list.append(super_info)
+                        new_items_count += 1
                 except (KeyError, AttributeError, IndexError) as e:
                     print(f"解析超话数据出错: {e}")
                     continue
             
-            if not page_super_info_list:
-                break
-                
             all_super_info_list.extend(page_super_info_list)
             print(f'第{page}页获取到{len(page_super_info_list)}个超话')
             
-            # 获取下一页的since_id
-            if 'since_id' in data['data']:
-                since_id = data['data']['since_id']
-            else:
-                # 如果没有since_id，尝试使用最后一个超话的ID
-                if super_list:
-                    try:
-                        last_item = super_list[-1]
-                        if 'link' in last_item:
-                            since_id = str(last_item['link'].split('/')[-1])
-                        else:
-                            break
-                    except:
-                        break
-                else:
-                    break
+            # 如果这是最后一页，停止
+            if max_page and page >= max_page:
+                print(f'已完成所有{max_page}页的获取')
+                break
             
             page += 1
-            time.sleep(random.uniform(1, 2))  # 添加延迟避免请求过快
+            time.sleep(random.uniform(0.5, 1.5))  # 添加延迟避免请求过快
             
-        except requests.exceptions.RequestException as e:
-            print(f'获取第{page}页超话列表失败: {e}')
+        except requests.exceptions.Timeout:
+            print(f'第{page}页请求超时')
             if page == 1:
-                raise
+                print('首页请求超时，请检查网络')
+                exit(0)
+            break
+        except requests.exceptions.RequestException as e:
+            print(f'第{page}页网络请求失败: {e}')
+            if page == 1:
+                exit(0)
             break
         except Exception as e:
-            print(f'解析第{page}页数据失败: {e}')
+            print(f'第{page}页数据处理失败: {e}')
             if page == 1:
-                raise
+                exit(0)
             break
     
-    print(f'总共获取到{len(all_super_info_list)}个超话')
+    # 验证获取结果
+    actual_count = len(all_super_info_list)
+    print(f'实际获取到{actual_count}个超话')
     
-    # 简单的数据验证
-    if len(all_super_info_list) == 0:
+    if total_number and actual_count != total_number:
+        print(f'警告：获取数量({actual_count})与API返回的总数({total_number})不匹配')
+    
+    # 数据验证
+    if actual_count == 0:
         print('警告：未获取到任何超话，可能Cookie已失效')
-        email_sender.send_QQ_email_plain('微博超话获取失败，可能Cookie已失效')
+        email_sender.send_QQ_email_plain('微博超话获取失败，未获取到任何超话')
         exit(0)
     
     return all_super_info_list
@@ -273,6 +305,7 @@ def main():
 
 if __name__ == '__main__':
     cookies = {
-        'SUB': os.getenv('SUB_TOKEN'),
+        # 'SUB': os.getenv('SUB_TOKEN'),
+        'SUB': '_2A25FdxsyDeRhGeFM6lUW-CnFyziIHXVmDRL6rDV6PUJbktANLUX8kW1NQPUgRRdCwKPROrJA3ANkjqTVHTJffgFb',
     }
     main()
