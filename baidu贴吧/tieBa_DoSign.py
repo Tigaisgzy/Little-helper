@@ -228,7 +228,6 @@ def main():
     print(f"开始第一轮签到，共{len(name_list)}个贴吧...")
     
     # 启动进度显示线程
-    import threading
     progress_thread = threading.Thread(target=show_progress, daemon=True)
     progress_thread.start()
     
