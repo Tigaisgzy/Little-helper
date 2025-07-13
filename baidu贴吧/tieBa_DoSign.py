@@ -1,4 +1,4 @@
-import requests, re, json, os, sys, urllib.parse, time, threading
+import requests, re, json, os, sys, urllib.parse, time, threading, random
 from datetime import datetime
 from lxml import etree
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -52,18 +52,34 @@ def get_count():
         time.sleep(2)
     
     print(f'总共获取到{len(all_name_list)}个贴吧')
+    
+    # 简单的Cookie有效性检查
+    if len(all_name_list) == 0:
+        print('警告：未获取到任何贴吧，可能Cookie已失效')
+        email_sender.send_QQ_email_plain('Cookie可能已失效，未获取到任何贴吧')
+        exit()
+    
     return all_name_list
 
 
 def sign_thread(name, results, lock, success_count, retry_count=3):
     message = ''
+    failure_reason = ''
+    
+    # 添加随机初始延迟
+    time.sleep(random.uniform(0.5, 2.0))
+    
     for attempt in range(retry_count):
         try:
             url_name = urllib.parse.quote(name)
             url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
-            response = requests.get(url, cookies=cookies, headers=headers)
+            
+            # 添加超时设置
+            response = requests.get(url, cookies=cookies, headers=headers, timeout=10)
             tree = etree.HTML(response.text)
-            time.sleep(1)
+            
+            # 随机延迟
+            time.sleep(random.uniform(1, 2))
             
             tbs_value = None
             
@@ -100,12 +116,19 @@ def sign_thread(name, results, lock, success_count, retry_count=3):
                     tbs_value = tbs_match.group(1)
             
             if not tbs_value:
-                message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: 无法获取tbs值'
+                failure_reason = '无法获取tbs值'
+                message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
+                if attempt < retry_count - 1:
+                    time.sleep(random.uniform(3, 5))  # 增加重试间隔
                 continue
 
+            # 添加签到请求的随机延迟
+            time.sleep(random.uniform(0.5, 1.5))
+            
             data = {'ie': 'utf-8', 'kw': name, 'tbs': tbs_value}
-            response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data)
+            response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data, timeout=10)
             json_data = json.loads(response.text)
+            
             if json_data["no"] == 0:
                 message = f'{name}吧签到成功'
                 break
@@ -113,18 +136,26 @@ def sign_thread(name, results, lock, success_count, retry_count=3):
                 message = f'{name}吧今天已经签到过了'
                 break
             else:
-                message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误码: {json_data.get("no", "未知")}'
+                failure_reason = f'错误码{json_data.get("no", "未知")}'
+                message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
+                if attempt < retry_count - 1:
+                    time.sleep(random.uniform(3, 5))
                 
-        except Exception as e:
-            message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {str(e)}'
+        except requests.exceptions.Timeout:
+            failure_reason = '请求超时'
+            message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
             if attempt < retry_count - 1:
-                time.sleep(2)
+                time.sleep(random.uniform(4, 6))
                 continue
-            
-        time.sleep(1)
+        except Exception as e:
+            failure_reason = str(e)
+            message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
+            if attempt < retry_count - 1:
+                time.sleep(random.uniform(3, 5))
+                continue
     else:
         if not message.endswith('签到成功') and not message.endswith('已经签到过了'):
-            message = f'{name}吧签到失败, 已重试{retry_count}次'
+            message = f'{name}吧签到失败, 已重试{retry_count}次 (最后错误: {failure_reason})'
 
     with lock:
         success_count[0] += 1
@@ -137,12 +168,41 @@ def main():
     results = []
     lock = threading.Lock()
     name_list = get_count()
-    max_workers = 8  # 减少线程数量，避免请求过于频繁
+    max_workers = 5  # 进一步减少线程数量，避免请求过于频繁
 
+    print(f"开始第一轮签到，共{len(name_list)}个贴吧...")
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(sign_thread, name, results, lock, success_count) for name in name_list]
         for future in as_completed(futures):
             future.result()
+
+    # 收集失败的贴吧进行二次重试
+    failed_tiebas = []
+    for msg in results:
+        if '签到失败' in msg and '已重试3次' in msg:
+            # 提取贴吧名称
+            tieba_name = msg.split('吧签到失败')[0]
+            failed_tiebas.append(tieba_name)
+    
+    if failed_tiebas:
+        print(f"第一轮完成，开始对{len(failed_tiebas)}个失败贴吧进行二次重试...")
+        time.sleep(5)  # 等待一段时间再开始二次重试
+        
+        retry_results = []
+        retry_count = [0]
+        with ThreadPoolExecutor(max_workers=3) as executor:  # 二次重试使用更少线程
+            futures = [executor.submit(sign_thread, name, retry_results, lock, retry_count, 2) for name in failed_tiebas]
+            for future in as_completed(futures):
+                future.result()
+        
+        # 更新原结果
+        for i, msg in enumerate(results):
+            if '签到失败' in msg and '已重试3次' in msg:
+                tieba_name = msg.split('吧签到失败')[0]
+                for retry_msg in retry_results:
+                    if retry_msg.startswith(tieba_name + '吧'):
+                        results[i] = retry_msg + " (二次重试)"
+                        break
 
     end_time = time.time()
     total_time = end_time - start_time
@@ -152,6 +212,8 @@ def main():
     success_rate = len(success_messages) / len(name_list) * 100 if name_list else 0
     
     summary = f"总共{len(name_list)}个贴吧，成功{len(success_messages)}个，成功率{success_rate:.1f}%，总耗时：{total_time:.2f}秒"
+    if failed_tiebas:
+        summary += f"（其中{len(failed_tiebas)}个进行了二次重试）"
     results.append(summary)
     email_sender.send_QQ_email_plain('\n'.join(results))
 
