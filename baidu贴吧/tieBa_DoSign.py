@@ -62,68 +62,111 @@ def get_count():
     return all_name_list
 
 
+def get_tbs_enhanced(tieba_name):
+    """增强版tbs获取函数，使用多种方法获取tbs值"""
+    
+    # 方法1：从主页获取tbs
+    try:
+        response = requests.get('https://tieba.baidu.com/', cookies=cookies, headers=headers, timeout=10)
+        tbs_match = re.search(r'PageData\.tbs\s*=\s*["\']([^"\']+)["\']', response.text)
+        if not tbs_match:
+            tbs_match = re.search(r'"tbs":"([^"]+)"', response.text)
+        if tbs_match:
+            return tbs_match.group(1)
+    except:
+        pass
+    
+    # 方法2：从API接口获取tbs
+    try:
+        api_url = 'https://tieba.baidu.com/dc/common/tbs'
+        response = requests.get(api_url, cookies=cookies, headers=headers, timeout=10)
+        tbs_data = json.loads(response.text)
+        if 'tbs' in tbs_data:
+            return tbs_data['tbs']
+    except:
+        pass
+    
+    # 方法3：从贴吧页面获取（原方法的改进版）
+    try:
+        url_name = urllib.parse.quote(tieba_name)
+        url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
+        response = requests.get(url, cookies=cookies, headers=headers, timeout=10)
+        tree = etree.HTML(response.text)
+        
+        # 多种xpath尝试
+        script_paths = [
+            '/html/head/script',
+            '//script[contains(text(), "PageData")]',
+            '//script[contains(text(), "tbs")]'
+        ]
+        
+        for path in script_paths:
+            script_elements = tree.xpath(path)
+            for script in script_elements:
+                if script.text:
+                    # 尝试多种正则模式
+                    patterns = [
+                        r'var PageData = ({.*?});',
+                        r'PageData\s*=\s*({.*?});',
+                        r'"tbs":"([^"]+)"',
+                        r"'tbs':'([^']+)'",
+                        r'tbs["\']?\s*[:=]\s*["\']([^"\']+)["\']'
+                    ]
+                    
+                    for pattern in patterns:
+                        match = re.search(pattern, script.text, re.DOTALL)
+                        if match:
+                            if pattern.startswith('var PageData') or pattern.startswith('PageData'):
+                                try:
+                                    cleaned_json = match.group(1).replace("'", '"')
+                                    page_data_dict = json.loads(cleaned_json)
+                                    if 'tbs' in page_data_dict:
+                                        return page_data_dict['tbs']
+                                except:
+                                    continue
+                            else:
+                                return match.group(1)
+    except:
+        pass
+    
+    # 方法4：尝试不同的贴吧入口
+    try:
+        url_name = urllib.parse.quote(tieba_name)
+        alt_url = f'https://tieba.baidu.com/f?kw={url_name}'
+        response = requests.get(alt_url, cookies=cookies, headers=headers, timeout=10)
+        tbs_match = re.search(r'"tbs":"([^"]+)"', response.text)
+        if tbs_match:
+            return tbs_match.group(1)
+    except:
+        pass
+    
+    return None
+
+
 def sign_thread(name, results, lock, success_count, retry_count=3):
     message = ''
     failure_reason = ''
     
     # 添加随机初始延迟
-    time.sleep(random.uniform(0.5, 2.0))
+    time.sleep(random.uniform(0.3, 1.5))
     
     for attempt in range(retry_count):
         try:
-            url_name = urllib.parse.quote(name)
-            url = f'https://tieba.baidu.com/f?ie=utf-8&kw={url_name}&fr=search'
-            
-            # 添加超时设置
-            response = requests.get(url, cookies=cookies, headers=headers, timeout=10)
-            tree = etree.HTML(response.text)
-            
-            # 随机延迟
-            time.sleep(random.uniform(1, 2))
-            
-            tbs_value = None
-            
-            # 方法1：从script标签获取PageData
-            script_elements = tree.xpath('/html/head/script')
-            for script in script_elements:
-                if script.text:
-                    tbs_data = re.search(r'var PageData = ({.*?});', script.text, re.DOTALL)
-                    if tbs_data:
-                        try:
-                            cleaned_json = tbs_data.group(1).replace("'", '"')
-                            page_data_dict = json.loads(cleaned_json)
-                            tbs_value = page_data_dict.get('tbs')
-                            break
-                        except:
-                            continue
-            
-            # 方法2：从所有script标签中搜索tbs
-            if not tbs_value:
-                all_scripts = tree.xpath('//script')
-                for script in all_scripts:
-                    if script.text:
-                        tbs_match = re.search(r'"tbs":"([^"]+)"', script.text)
-                        if not tbs_match:
-                            tbs_match = re.search(r"'tbs':'([^']+)'", script.text)
-                        if tbs_match:
-                            tbs_value = tbs_match.group(1)
-                            break
-            
-            # 方法3：从页面内容直接搜索
-            if not tbs_value:
-                tbs_match = re.search(r'tbs["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text)
-                if tbs_match:
-                    tbs_value = tbs_match.group(1)
+            # 使用增强版tbs获取函数
+            tbs_value = get_tbs_enhanced(name)
             
             if not tbs_value:
                 failure_reason = '无法获取tbs值'
                 message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
+                
+                # 对无法获取tbs值的错误，使用递增延迟
                 if attempt < retry_count - 1:
-                    time.sleep(random.uniform(3, 5))  # 增加重试间隔
+                    wait_time = 2 ** attempt + random.uniform(1, 3)  # 指数退避
+                    time.sleep(wait_time)
                 continue
 
             # 添加签到请求的随机延迟
-            time.sleep(random.uniform(0.5, 1.5))
+            time.sleep(random.uniform(0.3, 1.0))
             
             data = {'ie': 'utf-8', 'kw': name, 'tbs': tbs_value}
             response = requests.post('https://tieba.baidu.com/sign/add', cookies=cookies, headers=headers, data=data, timeout=10)
@@ -138,20 +181,21 @@ def sign_thread(name, results, lock, success_count, retry_count=3):
             else:
                 failure_reason = f'错误码{json_data.get("no", "未知")}'
                 message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
+                # 对签到错误码的重试使用较短延迟
                 if attempt < retry_count - 1:
-                    time.sleep(random.uniform(3, 5))
+                    time.sleep(random.uniform(2, 4))
                 
         except requests.exceptions.Timeout:
             failure_reason = '请求超时'
             message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
             if attempt < retry_count - 1:
-                time.sleep(random.uniform(4, 6))
+                time.sleep(random.uniform(3, 5))
                 continue
         except Exception as e:
             failure_reason = str(e)
             message = f'{name}吧签到失败, 尝试次数: {attempt + 1}, 错误: {failure_reason}'
             if attempt < retry_count - 1:
-                time.sleep(random.uniform(3, 5))
+                time.sleep(random.uniform(2, 4))
                 continue
     else:
         if not message.endswith('签到成功') and not message.endswith('已经签到过了'):
@@ -164,36 +208,60 @@ def sign_thread(name, results, lock, success_count, retry_count=3):
 
 def main():
     success_count = [0]
+    completed_count = [0]
     start_time = time.time()
     results = []
     lock = threading.Lock()
     name_list = get_count()
-    max_workers = 5  # 进一步减少线程数量，避免请求过于频繁
+    max_workers = 5
+    
+    def show_progress():
+        """显示进度的函数"""
+        while completed_count[0] < len(name_list):
+            time.sleep(3)
+            with lock:
+                current_completed = completed_count[0]
+                current_success = len([msg for msg in results if '签到成功' in msg or '已经签到过了' in msg])
+                progress = (current_completed / len(name_list)) * 100
+                print(f"进度: {current_completed}/{len(name_list)} ({progress:.1f}%) - 成功: {current_success}")
 
     print(f"开始第一轮签到，共{len(name_list)}个贴吧...")
+    
+    # 启动进度显示线程
+    import threading
+    progress_thread = threading.Thread(target=show_progress, daemon=True)
+    progress_thread.start()
+    
+    def sign_thread_with_progress(name):
+        sign_thread(name, results, lock, success_count)
+        with lock:
+            completed_count[0] += 1
+    
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(sign_thread, name, results, lock, success_count) for name in name_list]
+        futures = [executor.submit(sign_thread_with_progress, name) for name in name_list]
         for future in as_completed(futures):
             future.result()
+
+    print(f"第一轮完成！")
 
     # 收集失败的贴吧进行二次重试
     failed_tiebas = []
     for msg in results:
         if '签到失败' in msg and '已重试3次' in msg:
-            # 提取贴吧名称
             tieba_name = msg.split('吧签到失败')[0]
             failed_tiebas.append(tieba_name)
     
     if failed_tiebas:
-        print(f"第一轮完成，开始对{len(failed_tiebas)}个失败贴吧进行二次重试...")
-        time.sleep(5)  # 等待一段时间再开始二次重试
+        print(f"开始对{len(failed_tiebas)}个失败贴吧进行二次重试...")
+        time.sleep(3)
         
         retry_results = []
         retry_count = [0]
-        with ThreadPoolExecutor(max_workers=3) as executor:  # 二次重试使用更少线程
+        with ThreadPoolExecutor(max_workers=3) as executor:
             futures = [executor.submit(sign_thread, name, retry_results, lock, retry_count, 2) for name in failed_tiebas]
-            for future in as_completed(futures):
+            for i, future in enumerate(as_completed(futures)):
                 future.result()
+                print(f"二次重试进度: {i+1}/{len(failed_tiebas)}")
         
         # 更新原结果
         for i, msg in enumerate(results):
@@ -214,6 +282,8 @@ def main():
     summary = f"总共{len(name_list)}个贴吧，成功{len(success_messages)}个，成功率{success_rate:.1f}%，总耗时：{total_time:.2f}秒"
     if failed_tiebas:
         summary += f"（其中{len(failed_tiebas)}个进行了二次重试）"
+    
+    print(f"\n{summary}")
     results.append(summary)
     email_sender.send_QQ_email_plain('\n'.join(results))
 
