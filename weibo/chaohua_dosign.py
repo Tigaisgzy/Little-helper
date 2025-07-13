@@ -204,6 +204,7 @@ def start_sign(super_info, lock, results, retry_count=3):
                     break
             
             response_data = response.json()
+            print(response_data)
             
             if response_data['code'] == '100000':
                 result = super_info['name'] + '超话签到成功\n'
@@ -305,7 +306,6 @@ def main():
 
 if __name__ == '__main__':
     cookies = {
-        # 'SUB': os.getenv('SUB_TOKEN'),
-        'SUB': '_2A25FdxsyDeRhGeFM6lUW-CnFyziIHXVmDRL6rDV6PUJbktANLUX8kW1NQPUgRRdCwKPROrJA3ANkjqTVHTJffgFb',
+        'SUB': os.getenv('SUB_TOKEN'),
     }
     main()
